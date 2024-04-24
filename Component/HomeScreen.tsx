@@ -1,21 +1,23 @@
+import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 
 const HomeScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
+  const navigation = useNavigation()
   const handleLogin = () => {
-    // Aquí puedes implementar la lógica para iniciar sesión
+    
+    /*navigation.navigate('LoginScreen')*/
   };
 
   const handleSignUp = () => {
-    // Navegar a la pantalla de registro
+    //navigation.navigate('RegisterScreen');
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Panaderia artesanal masa madre</Text>
+      <Text style={styles.title}>Panaderia Alta Pinta</Text>
      
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Iniciar Sesión como Panadero</Text>

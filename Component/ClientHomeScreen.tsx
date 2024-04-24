@@ -4,12 +4,12 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image } from "react
 const ClientHomeScreen = () => {
   // Datos de ejemplo de productos
   const products = [
-    { id: "1", name: "Producto 1", price: "$10", image: require("../assets/producto1.jpg") },
-    { id: "2", name: "Producto 2", price: "$20", image: require("../assets/producto1.jpg") },
-    { id: "3", name: "Producto 3", price: "$15", image: require("../assets/producto1.jpg") },
-    { id: "4", name: "Producto 4", price: "$25", image: require("../assets/producto1.jpg") },
-    { id: "5", name: "Producto 5", price: "$18", image: require("../assets/producto1.jpg") },
-    { id: "6", name: "Producto 6", price: "$30", image: require("../assets/producto1.jpg") },
+    { id: "1", name: "Producto 1", price: "10€", image: require("../assets/producto1.jpg") },
+    { id: "2", name: "Producto 2", price: "20€", image: require("../assets/producto1.jpg") },
+    { id: "3", name: "Producto 3", price: "15€", image: require("../assets/producto1.jpg") },
+    { id: "4", name: "Producto 4", price: "25€", image: require("../assets/producto1.jpg") },
+    { id: "5", name: "Producto 5", price: "18€", image: require("../assets/producto1.jpg") },
+    { id: "6", name: "Producto 6", price: "30€", image: require("../assets/producto1.jpg") },
     // Agrega más productos según sea necesario
   ];
 

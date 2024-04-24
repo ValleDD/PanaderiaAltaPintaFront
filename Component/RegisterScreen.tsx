@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 
-const RegisterPScreen: React.FC = () => {
+const RegisterScreen: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [address, setAddress] = useState('');
   const [bakeryDetails, setBakeryDetails] = useState('');
+  const [isBaker, setIsBaker] = useState(false); 
 
   const handleRegister = () => {
     // Aquí puedes implementar la lógica para enviar el formulario de registro
@@ -37,24 +38,27 @@ const RegisterPScreen: React.FC = () => {
         value={password}
         secureTextEntry
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Dirección (solo para clientes)"
-        onChangeText={setAddress}
-        value={address}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Detalles de la Panadería (solo para panaderos)"
-        onChangeText={setBakeryDetails}
-        value={bakeryDetails}
-      />
+      {isBaker ? (
+        <TextInput
+          style={styles.input}
+          placeholder="Detalles de la Panadería"
+          onChangeText={setBakeryDetails}
+          value={bakeryDetails}
+        />
+      ) : (
+        <TextInput
+          style={styles.input}
+          placeholder="Dirección"
+          onChangeText={setAddress}
+          value={address}
+        />
+      )}
       <TouchableOpacity style={styles.button} onPress={handleRegister}>
         <Text style={styles.buttonText}>Registrarse</Text>
       </TouchableOpacity>
     </View>
   );
-};
+}  
 
 const styles = StyleSheet.create({
   container: {
@@ -92,4 +96,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RegisterPScreen;
+export default RegisterScreen;
