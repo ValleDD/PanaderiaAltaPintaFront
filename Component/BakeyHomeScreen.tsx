@@ -18,7 +18,7 @@ const BakeryHomeScreen: React.FC = () => {
   const [products, setProducts] = useState(initialProducts);
   const [newProductName, setNewProductName] = useState('');
   const [newProductPrice, setNewProductPrice] = useState('');
-  const [orders, setOrders] = useState(initialOrders);
+ 
 
   const handleAddProduct = () => {
     if (newProductName && newProductPrice) {
@@ -38,10 +38,7 @@ const BakeryHomeScreen: React.FC = () => {
     setProducts(updatedProducts);
   };
 
-  const handleMarkOrderAsCompleted = (orderId: number) => {
-    const updatedOrders = orders.filter(order => order.id !== orderId);
-    setOrders(updatedOrders);
-  };
+  
 
   return (
     <View style={styles.container}>
@@ -74,19 +71,7 @@ const BakeryHomeScreen: React.FC = () => {
       <TouchableOpacity style={styles.button} onPress={handleAddProduct}>
         <Text style={styles.buttonText}>Agregar Producto</Text>
       </TouchableOpacity>
-      <Text style={styles.title}>Pedidos Pendientes</Text>
-      <FlatList
-        data={orders}
-        renderItem={({ item }) => (
-          <View style={styles.orderItem}>
-            <Text>{item.productName} - Cantidad: {item.quantity}</Text>
-            <TouchableOpacity onPress={() => handleMarkOrderAsCompleted(item.id)}>
-              <Text style={styles.completeButton}>Marcar como Realizado</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-        keyExtractor={item => item.id.toString()}
-      />
+      
     </View>
   );
 };

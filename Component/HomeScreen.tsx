@@ -5,7 +5,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-nativ
 const HomeScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigation = useNavigation()
+  //const navigation = useNavigation()
   const handleLogin = () => {
     
     /*navigation.navigate('LoginScreen')*/

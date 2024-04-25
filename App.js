@@ -4,12 +4,14 @@ import HomeScreen from './Component/HomeScreen';
 import ClientHomeScreen from './Component/ClientHomeScreen';
 import LoginScreen from './Component/LoginScreen';
 import RegisterScreen from './Component/RegisterScreen';
+import BakeryHomeScreen from './Component/BakeyHomeScreen';
+import OrdersEarringsScreen from './Component/OrdersEarringsScreen';
 
 
 export default function App() {
   return (
     <View style={styles.container}>
-    <RegisterScreen/>
+    <OrdersEarringsScreen/>
     </View>
   );
 }

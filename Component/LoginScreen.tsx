@@ -7,7 +7,7 @@ const LoginScreen = () => {
 
   const handleLogin = () => {
     // Aquí puedes implementar la lógica para iniciar sesión
-    // Por ejemplo, puedes enviar los datos de inicio de sesión a tu backend para verificar la autenticidad
+    
   };
 
   const handleSignUp = () => {

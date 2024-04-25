@@ -10,7 +10,7 @@ const ClientHomeScreen = () => {
     { id: "4", name: "Producto 4", price: "25€", image: require("../assets/producto1.jpg") },
     { id: "5", name: "Producto 5", price: "18€", image: require("../assets/producto1.jpg") },
     { id: "6", name: "Producto 6", price: "30€", image: require("../assets/producto1.jpg") },
-    // Agrega más productos según sea necesario
+  
   ];
 
   const renderProductItem = ({ item }) => (
