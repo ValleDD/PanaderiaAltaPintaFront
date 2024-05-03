@@ -1,8 +1,10 @@
-import React from "react";
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image } from "react-native";
+import React, { useState } from "react";
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image, TextInput } from "react-native";
 
 const ClientHomeScreen = () => {
   // Datos de ejemplo de productos
+  const [searchQuery, setSearchQuery] = useState('');
+  
   const products = [
     { id: "1", name: "Producto 1", price: "10€", image: require("../assets/producto1.jpg") },
     { id: "2", name: "Producto 2", price: "20€", image: require("../assets/producto1.jpg") },
@@ -10,7 +12,6 @@ const ClientHomeScreen = () => {
     { id: "4", name: "Producto 4", price: "25€", image: require("../assets/producto1.jpg") },
     { id: "5", name: "Producto 5", price: "18€", image: require("../assets/producto1.jpg") },
     { id: "6", name: "Producto 6", price: "30€", image: require("../assets/producto1.jpg") },
-  
   ];
 
   const renderProductItem = ({ item }) => (
@@ -23,11 +24,23 @@ const ClientHomeScreen = () => {
     </TouchableOpacity>
   );
 
+  const filteredProducts = products.filter(product =>
+    product.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <View style={styles.container}>
+      <View style={styles.searchBarContainer}>
+        <TextInput
+          style={styles.searchBar}
+          placeholder="Buscar productos..."
+          onChangeText={setSearchQuery}
+          value={searchQuery}
+        />
+      </View>
       <FlatList
-      style={styles.flastlist}
-        data={products}
+        style={styles.flatlist}
+        data={filteredProducts}
         renderItem={renderProductItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.productList}
@@ -39,7 +52,21 @@ const ClientHomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop:20,
+    backgroundColor: "#fff",
+  },
+  searchBarContainer: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    backgroundColor: "#f0f0f0",
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+  },
+  searchBar: {
+    height: 40,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    paddingHorizontal: 10,
     backgroundColor: "#fff",
   },
   productList: {
@@ -51,7 +78,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
-    marginTop:48
   },
   productImage: {
     width: 100,
@@ -72,10 +98,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
   },
-  flastlist:{
-    width: 380,
-   
-  }
+  flatlist: {
+    flex: 1,
+  },
 });
 
 export default ClientHomeScreen;
