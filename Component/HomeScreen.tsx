@@ -24,10 +24,7 @@ const HomeScreen = () => {
   }
 
   return (
-    <ImageBackground
-      source={require('../assets/fondo.jpg')} // Ruta de la imagen de fondo
-      style={styles.background}
-    >
+   
       <View style={styles.container}>
         <Image
           source={require('../assets/PANADERO.png')} // Ajusta la ruta a tu logo
@@ -49,7 +46,7 @@ const HomeScreen = () => {
           <Text style={styles.signUpText}>¿Nuevo usuario? Registrarse aquí</Text>
         </TouchableOpacity>
       </View>
-    </ImageBackground>
+  
   );
 };
 
@@ -104,6 +101,7 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
     color: '#fff', // Color del texto
   },
+  
 });
 
 export default HomeScreen;

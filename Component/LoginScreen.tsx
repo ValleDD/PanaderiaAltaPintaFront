@@ -26,17 +26,14 @@ const LoginScreen = () => {
 
   return (
     <View style={styles.container}>
-      <ImageBackground
-        source={require("../assets/fondo.jpg")}
-        style={styles.backgroundImage}
-      >
+     
         <View style={styles.overlay}>
           <Image
             source={require("../assets/PANADERO.png")}
             style={styles.logo}
           />
         </View>
-      </ImageBackground>
+      
 
       <View style={styles.formContainer}>
         <View style={styles.buttonsContainer}>

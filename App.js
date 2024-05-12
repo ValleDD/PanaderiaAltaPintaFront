@@ -1,25 +1,31 @@
-
-import { StyleSheet } from 'react-native';
-import HomeScreen from './Component/HomeScreen';
-import LoginScreen from './Component/LoginScreen';
-import RegisterScreen from './Component/RegisterScreen';
-
-import BakeryHomeScreen from './Component/BakeyHomeScreen';
+import React from 'react';
+import { StyleSheet, ImageBackground, View, Text} from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
+import Screen from "./Services/Screen";
+import OrdersEarringsScreen from './Component/OrdersEarringsScreen';
 import ClientHomeScreen from './Component/ClientHomeScreen';
 
-
-
-export default function App() {
+const App = () => {
   return (
-    <RegisterScreen/>
+   <ImageBackground
+      source={require("./assets/fondo2.jpg")}
+      style={styles.backgroundImage}
+    >
+      <ClientHomeScreen/>
+      
+       
+   
+  </ImageBackground>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  container: {
+  backgroundImage: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    resizeMode: "cover",
+  // justifyContent: "center",
+   // alignItems: "center",
   },
 });
+
+export default App;
