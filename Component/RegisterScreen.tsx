@@ -36,31 +36,15 @@ const RegisterScreen: React.FC = () => {
       detalles_panaderia: isBaker ? bakeryDetails : "",
     };
   
-    fetch("http://localhost:3001/api/user/crear", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(userData),
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Error en la petición');
-      }
-      return response.json();
-    })
-    .then(data => {
-      console.log("Registro exitoso:", data);
-      alert("Registro exitoso");
-    })
-    .catch(error => {
-      console.error('Error al registrar:', error); // Agregar manejo de errores aquí
-      alert("Ocurrió un error al intentar registrar, por favor inténtalo de nuevo más tarde");
-    });
+   //seguir con la conexion
   };
   
 
   return (
+    <ImageBackground
+      source={require("../assets/fondo2.jpg")}
+      style={styles.backgroundImage}
+    >
     <View style={styles.container}>
       
         <View style={styles.overlay}>
@@ -134,6 +118,7 @@ const RegisterScreen: React.FC = () => {
       
       </View>
     </View>
+    </ImageBackground>
   );
 };
 
@@ -192,13 +177,13 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   buttonGroup: {
-    borderRadius: 20, // Redondear el contenedor del ButtonGroup
-    overflow: "hidden", // Asegurar que los bordes redondeados sean visibles
+    borderRadius: 20, 
+    overflow: "hidden", 
   },
   button: {
     borderRadius: 20,
     height: 20,
-    width:20 // Redondear los botones
+    width:20
   },
  
   buttonText: {
@@ -207,18 +192,18 @@ const styles = StyleSheet.create({
   },
 
   registerButton: {
-    width: "60%", // Ancho del botón
-    height: 50, // Altura del botón
-    backgroundColor: "blue", // Color de fondo del botón
-    justifyContent: "center", // Centra verticalmente el contenido del botón
-    alignItems: "center", // Centra horizontalmente el contenido del botón
-    borderRadius: 25, // Radio de borde para hacerlo redondo
-    alignSelf: "center", // Coloca el botón en el medio horizontal de la pantalla
-    marginTop: 20, // Espacio en la parte superior del botón
+    width: "60%",
+    height: 50,
+    backgroundColor: "blue",
+    justifyContent: "center", 
+    alignItems: "center", 
+    borderRadius: 25, 
+    alignSelf: "center", 
+    marginTop: 20, 
   },
   registerButtonText: {
-    color: "white", // Color del texto
-    fontWeight: "bold", // Estilo de texto en negrita
+    color: "white", 
+    fontWeight: "bold", 
   },
 });
 

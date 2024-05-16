@@ -21,10 +21,14 @@ const LoginScreen = () => {
   };
 
   const handleSignUp = () => {
-    // Navegar a la pantalla de registro
+    
   };
 
   return (
+    <ImageBackground
+    source={require("../assets/fondo2.jpg")}
+    style={styles.backgroundImage}
+  >
     <View style={styles.container}>
      
         <View style={styles.overlay}>
@@ -71,6 +75,7 @@ const LoginScreen = () => {
         </TouchableOpacity>
       </View>
     </View>
+    </ImageBackground>
   );
 };
 
@@ -81,11 +86,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 20,
   },
-  backgroundImage: {
-    width: "111%",
-    height: height * 0.72,
-    resizeMode: "cover",
-  },
+ // backgroundImage: {
+   // width: "111%",
+   // height: height * 0.72,
+   // resizeMode: "cover",
+ // },
   overlay: {
     flex: 1,
     justifyContent: "flex-start", 
@@ -157,6 +162,12 @@ const styles = StyleSheet.create({
     width: 150,
     height: 150,
     resizeMode: "contain",
+  },
+  backgroundImage: {
+    flex: 1,
+    resizeMode: "cover",
+  // justifyContent: "center",
+   // alignItems: "center",
   },
 });
 

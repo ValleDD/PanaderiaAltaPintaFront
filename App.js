@@ -1,31 +1,39 @@
 import React from 'react';
-import { StyleSheet, ImageBackground, View, Text} from "react-native";
-import { NavigationContainer } from "@react-navigation/native";
-import Screen from "./Services/Screen";
-import OrdersEarringsScreen from './Component/OrdersEarringsScreen';
+import { StyleSheet, ImageBackground} from "react-native";
+import CustomerOrderScreen from './Component/CustomerOrderScreen';
+import PaymentScreen from './Component/PaymentScreen';
+import HomeScreen from './Component/HomeScreen';
+import LoginScreen from './Component/LoginScreen';
+import RegisterScreen from './Component/RegisterScreen';
+import OrdersBakeryScreen from './Component/OrdersEarringsScreen';
 import ClientHomeScreen from './Component/ClientHomeScreen';
+import { NavigationContainer } from '@react-navigation/native';
+import Screen from './Services/Screen';
 
 const App = () => {
   return (
-   <ImageBackground
+  /* <ImageBackground
       source={require("./assets/fondo2.jpg")}
       style={styles.backgroundImage}
-    >
-      <ClientHomeScreen/>
+    >*/
+      
+      <Screen/>
+      
+  
       
        
    
-  </ImageBackground>
+  //</ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  backgroundImage: {
+  /*backgroundImage: {
     flex: 1,
     resizeMode: "cover",
   // justifyContent: "center",
    // alignItems: "center",
-  },
+  },*/
 });
 
 export default App;

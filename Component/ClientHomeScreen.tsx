@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image, TextInput } from "react-native";
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image, TextInput, ImageBackground } from "react-native";
 
 const ClientHomeScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [cart, setCart] = useState([]); // Estado para mantener los productos añadidos al carrito
+  const [cart, setCart] = useState([]); 
 
   const products = [
     { id: "1", name: "Producto 1", price: "10€", image: require("../assets/producto1.jpg") },
@@ -15,6 +15,10 @@ const ClientHomeScreen = () => {
   ];
 
   const renderProductItem = ({ item }) => (
+    <ImageBackground
+    source={require("../assets/fondo2.jpg")}
+    style={styles.backgroundImage}
+  >
     <View style={styles.productContainer}>
       <Image source={item.image} style={styles.productImage} />
       <View style={styles.productTextContainer}>
@@ -43,6 +47,7 @@ const ClientHomeScreen = () => {
         value={getProductNotes(item)}
       />
     </View>
+    </ImageBackground>
   );
   
 
@@ -211,6 +216,12 @@ const styles = StyleSheet.create({
   },
   flatlist: {
     flex: 1,
+  },
+  backgroundImage: {
+    flex: 1,
+    resizeMode: "cover",
+  // justifyContent: "center",
+   // alignItems: "center",
   },
 });
 

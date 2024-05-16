@@ -11,23 +11,25 @@ const HomeScreen = () => {
   });
 
   const handleLogin = () => {
-    // Aquí iría la lógica para el inicio de sesión
+   
   };
 
   const handleSignUp = () => {
-    // Aquí iría la lógica para el registro de usuario
+  
   };
 
   if (!fontsLoaded) {
-    // Si las fuentes no están cargadas aún, podemos devolver un componente de carga o simplemente null
     return null;
   }
 
   return (
-   
+    <ImageBackground
+    source={require("../assets/fondo2.jpg")}
+    style={styles.backgroundImage}
+  >
       <View style={styles.container}>
         <Image
-          source={require('../assets/PANADERO.png')} // Ajusta la ruta a tu logo
+          source={require('../assets/PANADERO.png')} 
           style={styles.logo}
         />
         <Text style={styles.title}>¡Bienvenidos a Panadería Alta Pinta!</Text>
@@ -46,7 +48,7 @@ const HomeScreen = () => {
           <Text style={styles.signUpText}>¿Nuevo usuario? Registrarse aquí</Text>
         </TouchableOpacity>
       </View>
-  
+      </ImageBackground>
   );
 };
 
@@ -99,7 +101,13 @@ const styles = StyleSheet.create({
   signUpText: {
     marginTop: 20,
     textDecorationLine: 'underline',
-    color: '#fff', // Color del texto
+    color: '#fff', 
+  },
+  backgroundImage: {
+    flex: 1,
+    resizeMode: "cover",
+  // justifyContent: "center",
+   // alignItems: "center",
   },
   
 });

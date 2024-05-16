@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
 
-// Ejemplo de datos de pedidos pendientes
+
 const initialOrders = [
   { id: 1, productName: 'Pan de trigo', note: 'Sin azúcar', quantity: 2 },
   { id: 2, productName: 'Croissant', note: 'Con mantequilla extra', quantity: 1 },
@@ -22,6 +22,10 @@ const OrdersBakeryScreen = () => {
   const isSelected = (orderId) => selectedOrders.includes(orderId);
 
   return (
+    <ImageBackground
+    source={require("../assets/fondo2.jpg")}
+    style={styles.backgroundImage}
+  >
     <View style={styles.container}>
       <Text style={styles.title}>Pedidos Pendientes</Text>
       <View style={styles.tableHeader}>
@@ -46,6 +50,7 @@ const OrdersBakeryScreen = () => {
         keyExtractor={item => item.id.toString()}
       />
     </View>
+    </ImageBackground>
   );
 };
 
@@ -67,9 +72,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 10,
-    paddingHorizontal: 10, // Añadir espacio horizontal
-    backgroundColor: 'white', // Fondo del encabezado de la tabla
-    paddingVertical: 10, // Añadir espacio vertical
+    paddingHorizontal: 10, 
+    backgroundColor: 'white', 
+    paddingVertical: 10, 
   },
   headerText: {
     fontWeight: 'bold',
@@ -85,16 +90,16 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     elevation: 2,
     width: '100%',
-    backgroundColor: 'white', // Fondo del item
+    backgroundColor: 'white', 
   },
   itemText: {
     flex: 1,
     fontSize: 16,
-    color: 'black', // Color del texto
-    backgroundColor: 'white', // Fondo del itemText
-    paddingHorizontal: 10, // Añadir espacio horizontal
-    paddingVertical: 5, // Añadir espacio vertical
-    borderRadius: 5, // Bordes redondeados
+    color: 'black', 
+    backgroundColor: 'white',
+    paddingHorizontal: 10, 
+    paddingVertical: 5, 
+    borderRadius: 5, 
   },
   selectionIndicator: {
     width: 20,
@@ -104,6 +109,14 @@ const styles = StyleSheet.create({
     //borderColor: 'white',
     marginRight: 10,
   },
+  backgroundImage: {
+    flex: 1,
+    resizeMode: "cover",
+  // justifyContent: "center",
+   // alignItems: "center",
+  },
+  
+
 });
  
 export default OrdersBakeryScreen;
