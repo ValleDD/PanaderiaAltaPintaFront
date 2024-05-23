@@ -1,85 +1,114 @@
-import React, { useState } from 'react'
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native'
+import React, { useState } from 'react';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
 
-// Ejemplo de datos de pedidos pendientes
 const initialOrders = [
-    { id: 1, productName: 'Pan de trigo', quantity: 2 },
-    { id: 2, productName: 'Croissant', quantity: 1 },
-  ];
+  {
+    id: 12345,
+    clientName: 'Juan Pérez',
+    products: [
+      { name: 'Pan Integral', quantity: 2 },
+      { name: 'Pan Blanco', quantity: 1 },
+    ],
+    done: false,
+  },
+  {
+    id: 12346,
+    clientName: 'María López',
+    products: [
+      { name: 'Pan de Avena', quantity: 3 },
+    ],
+    done: false,
+  },
+];
 
-const OrdersEarringsScreen = () => {
-    const [orders, setOrders] = useState(initialOrders);
+const OrdersBakeryScreen = () => {
+  const [orders, setOrders] = useState(initialOrders);
 
+  const toggleOrderDone = (orderId) => {
+    setOrders(
+      orders.map(order =>
+        order.id === orderId ? { ...order, done: !order.done } : order
+      )
+    );
+  };
 
-    const handleMarkOrderAsCompleted = (orderId: number) => {
-        const updatedOrders = orders.filter(order => order.id !== orderId);
-        setOrders(updatedOrders);
-      };
   return (
-    <View>
+    <ImageBackground
+      source={require("../assets/fondo2.jpg")}
+      style={styles.backgroundImage}
+    >
+      <View style={styles.container}>
         <Text style={styles.title}>Pedidos Pendientes</Text>
-      <FlatList
-        data={orders}
-        renderItem={({ item }) => (
-          <View style={styles.orderItem}>
-            <Text>{item.productName} - Cantidad: {item.quantity}</Text>
-            <TouchableOpacity onPress={() => handleMarkOrderAsCompleted(item.id)}>
-              <Text style={styles.completeButton}>Marcar como Realizado</Text>
+        <FlatList
+          data={orders}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={[
+                styles.orderContainer,
+                { backgroundColor: item.done ? '#C1E1C5' : 'white' },
+              ]}
+              onPress={() => toggleOrderDone(item.id)}
+            >
+              <Text style={styles.orderId}>ID del Pedido: {item.id}</Text>
+              <Text style={styles.clientName}>
+                Nombre del Cliente: {item.clientName}
+              </Text>
+              <Text style={styles.productsTitle}>Productos:</Text>
+              {item.products.map((product, index) => (
+                <Text key={index} style={styles.productItem}>
+                  - {product.name} x {product.quantity}
+                </Text>
+              ))}
             </TouchableOpacity>
-          </View>
-        )}
-        keyExtractor={item => item.id.toString()}
-      />
-    </View>
-  )
-}
-const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      padding: 20,
-    },
-    title: {
-      fontSize: 20,
-      fontWeight: 'bold',
-      marginBottom: 10,
-    },
-    productItem: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 10,
-    },
-    removeButton: {
-      color: 'red',
-    },
-    input: {
-      height: 40,
-      borderWidth: 1,
-      borderColor: '#ccc',
-      borderRadius: 5,
-      paddingHorizontal: 10,
-      marginBottom: 10,
-    },
-    button: {
-      backgroundColor: 'blue',
-      padding: 10,
-      borderRadius: 5,
-      alignItems: 'center',
-      marginBottom: 10,
-    },
-    buttonText: {
-      color: 'white',
-      fontWeight: 'bold',
-    },
-    orderItem: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 10,
-    },
-    completeButton: {
-      color: 'green',
-    },
-  });
+          )}
+          keyExtractor={(item) => item.id.toString()}
+        />
+      </View>
+    </ImageBackground>
+  );
+};
 
-export default OrdersEarringsScreen
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop: 50,
+    paddingHorizontal: 10,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    color: 'white',
+    textAlign: 'center',
+  },
+  orderContainer: {
+    borderRadius: 8,
+    padding: 20,
+    marginVertical: 10,
+    elevation: 2,
+  },
+  orderId: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  clientName: {
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  productsTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  productItem: {
+    fontSize: 16,
+    marginBottom: 5,
+  },
+  backgroundImage: {
+    flex: 1,
+    resizeMode: 'cover',
+  },
+});
+
+export default OrdersBakeryScreen;

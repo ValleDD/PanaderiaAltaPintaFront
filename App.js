@@ -1,25 +1,38 @@
-
-import { StyleSheet } from 'react-native';
+import React from 'react';
+import { StyleSheet, ImageBackground} from "react-native";
+import CustomerOrderScreen from './Component/CustomerOrderScreen';
+import PaymentScreen from './Component/PaymentScreen';
 import HomeScreen from './Component/HomeScreen';
 import LoginScreen from './Component/LoginScreen';
 import RegisterScreen from './Component/RegisterScreen';
-
-import BakeryHomeScreen from './Component/BakeyHomeScreen';
+import OrdersBakeryScreen from './Component/OrdersEarringsScreen';
 import ClientHomeScreen from './Component/ClientHomeScreen';
+import { NavigationContainer } from '@react-navigation/native';
+import Screen from './Services/Screen';
 
-
-
-export default function App() {
+const App = () => {
   return (
-    <RegisterScreen/>
+  
+      
+    <AuthProvider>
+    <Screen/>
+    </AuthProvider>
+      
+  
+      
+       
+   
+  //</ImageBackground>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  container: {
+  /*backgroundImage: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+    resizeMode: "cover",
+  // justifyContent: "center",
+   // alignItems: "center",
+  },*/
 });
+
+export default App;

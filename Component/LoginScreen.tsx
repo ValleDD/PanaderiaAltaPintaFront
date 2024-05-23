@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,72 +8,191 @@ import {
   Image,
   ImageBackground,
   Dimensions,
+  Alert,
 } from "react-native";
+import { useNavigation, NavigationProp, RouteProp } from '@react-navigation/native';
+import { ButtonGroup } from 'react-native-elements'; // Asegúrate de tener react-native-elements instalado
+import { useAuth } from "../Context/AuthContext";
+import axios from 'axios';
 
 const { height } = Dimensions.get("window");
 
-const LoginScreen = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+type RootStackParamList = {
+  Login: { isRegister: boolean };
+  clientHome: undefined;
+};
 
-  const handleLogin = () => {
+type LoginScreenRouteProp = RouteProp<RootStackParamList, 'Login'>;
+
+const LoginScreen: React.FC<{ route: LoginScreenRouteProp }> = ({ route }) => {
+  const { login } = useAuth();
+  const [correo_electronico, setCorreo_electronico] = useState<string>('');
+  const [contrasena, setContrasena] = useState<string>('');
+  const [nombre, setNombre] = useState<string>('');
+
+ 
+  const [bakeryDetails, setBakeryDetails] = useState<string>('');
+  const [direccion, setDireccion] = useState<string>('');
+  const [rol, setRol] = useState<boolean>(false);
+  const [selectedIndex, setSelectedIndex] = useState<number>(1);
+  const navigation = useNavigation<NavigationProp<any>>();
+
+  useEffect(() => {
+    if (route.params?.isRegister) {
+      setIsRegister(true);
+      setSelectedIndex(0); // Selecciona el botón de Registro
+    }
+  }, [route.params?.isRegister]);
+
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post('/api/user/login', {
+        nombre,
+        correo_electronico,
+        contrasena,
+      });
+      login(response.data.token);
+      Alert.alert('Inicio de sesión exitoso');
+      navigation.navigate('clientHome'); // Navega a clientHome después de iniciar sesión
+    } catch (error) {
+      console.error('Error logging in:', error);
+      Alert.alert('Error al iniciar sesión', 'Revise sus credenciales e intente nuevamente');
+    }
+  };
+
+  const handleRegister = async () => {
+    try {
+        const userData = {
+            nombre,
+            correo,
+        };
+        const response = await fetch('URL_DEL_SERVIDOR/createUser', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(userData),
+        });
+        const responseData: ResponseData = await response.json();
+        if (response.ok) {
+            console.log(responseData.message);
+            // Manejar la respuesta exitosa según necesites
+        } else {
+            throw new Error(responseData.message);
+        }
+    } catch (error) {
+        console.error('Hubo un error al crear el usuario:', error);
+        setErrorMessage('Hubo un error al crear el usuario. Por favor, inténtalo de nuevo.');
+    }
+};
   
-  };
 
-  const handleSignUp = () => {
-    // Navegar a la pantalla de registro
-  };
+  const [isRegister, setIsRegister] = useState<boolean>(false);
 
   return (
-    <View style={styles.container}>
-      <ImageBackground
-        source={require("../assets/fondo.jpg")}
-        style={styles.backgroundImage}
-      >
+    <ImageBackground
+      source={require("../assets/fondo2.jpg")}
+      style={styles.backgroundImage}
+    >
+      <View style={styles.container}>
         <View style={styles.overlay}>
           <Image
             source={require("../assets/PANADERO.png")}
             style={styles.logo}
           />
         </View>
-      </ImageBackground>
 
-      <View style={styles.formContainer}>
-        <View style={styles.buttonsContainer}>
-          <TouchableOpacity style={styles.button} onPress={handleLogin}>
-            <Text style={styles.buttonText}>Inicio</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={handleSignUp}>
-            <Text style={styles.buttonText}>Registro</Text>
-          </TouchableOpacity>
+        <View style={styles.wrapper}>
+          <ButtonGroup
+            containerStyle={styles.buttonGroup}
+            buttons={["REGISTRO", "INICIO"]}
+            selectedIndex={isRegister ? 0 : 1}
+            onPress={(value) => {
+              setSelectedIndex(value);
+            }}
+            buttonStyle={styles.button}
+            selectedButtonStyle={styles.selectedButton} // Estilo para el botón seleccionado
+            textStyle={styles.text}
+            selectedTextStyle={styles.selectedText} // Estilo para el texto del botón seleccionado
+          />
+
+          {isRegister ? (
+            <View>
+              <Text style={styles.title}>Registro</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Nombre"
+                onChangeText={setName}
+                value={name}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Correo Electrónico"
+                onChangeText={setEmail}
+                value={email}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Contraseña"
+                onChangeText={setPassword}
+                value={password}
+                secureTextEntry
+              />
+              <ButtonGroup
+                containerStyle={styles.buttonGroup}
+                buttons={["Usuario", "Panadero"]}
+                selectedIndex={isBaker ? 1 : 0}
+                onPress={(value) => {
+                  setIsBaker(value === 1);
+                }}
+              />
+              {isBaker ? (
+                <TextInput
+                  style={styles.input}
+                  placeholder="Detalles de la Panadería"
+                  onChangeText={setBakeryDetails}
+                  value={bakeryDetails}
+                />
+              ) : (
+                <TextInput
+                  style={styles.input}
+                  placeholder="Dirección"
+                  onChangeText={setAddress}
+                  value={address}
+                />
+              )}
+              <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
+                <Text style={styles.registerButtonText}>Registrarse</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View>
+              <Text style={styles.title}>Inicio de Sesión</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Correo Electrónico"
+                onChangeText={setCorreo_electronico}
+                value={correo_electronico}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Contraseña"
+                onChangeText={setContrasena}
+                value={contrasena}
+                secureTextEntry
+              />
+              <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+                <Text style={styles.buttonText}>Iniciar Sesión</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
-        <Text style={styles.title}>Inicio de Sesión</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Correo Electrónico"
-          onChangeText={setEmail}
-          value={email}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Contraseña"
-          onChangeText={setPassword}
-          value={password}
-          secureTextEntry
-        />
-        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Iniciar Sesión</Text>
-        </TouchableOpacity>
-       
-        <TouchableOpacity onPress={handleSignUp}>
-          <Text style={styles.signUpText}>
-            ¿Nuevo usuario? Registrarse aquí
-          </Text>
-        </TouchableOpacity>
       </View>
-    </View>
+    </ImageBackground>
   );
 };
 
@@ -85,23 +204,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   backgroundImage: {
-    width: "111%",
-    height: height * 0.72,
+    flex: 1,
     resizeMode: "cover",
   },
   overlay: {
     flex: 1,
-    justifyContent: "flex-start", 
+    justifyContent: "flex-start",
     alignItems: "center",
-    marginTop:50
+    marginTop: 50,
   },
-  buttonsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
-    marginBottom: 20,
-  },
-  formContainer: {
+  wrapper: {
     width: "100%",
     backgroundColor: "#FFF",
     borderRadius: 10,
@@ -113,8 +225,9 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
-    elevation: 30,
-    marginTop: -100,
+    elevation: 10,
+    marginTop: 15,
+    marginBottom: 20
   },
   title: {
     fontSize: 24,
@@ -131,37 +244,53 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginBottom: 10,
   },
-  button: {
-    height: 40,
-    backgroundColor: "blue",
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 5,
-    width: "48%", 
-  },
-  buttonText: {
-    color: "white",
-    fontWeight: "bold",
-  },
-  signUpText: {
-    marginTop: 20,
-    textDecorationLine: "underline",
-    textAlign: "center",
-  },
   loginButton: {
     height: 40,
-    backgroundColor: "blue",
+    backgroundColor: "#7F5232", 
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 5,
     marginBottom: 10,
   },
+  buttonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
   logo: {
     width: 150,
     height: 150,
     resizeMode: "contain",
+    borderRadius: 40
+  },
+  buttonGroup: {
+    marginBottom: 20,
+    borderRadius: 25,
+    backgroundColor: 'white', 
+  },
+  button: {
+    backgroundColor: 'white', 
+  },
+  selectedButton: {
+    backgroundColor: '#7F5232',
+  },
+  text: {
+    color: 'black', // Color del texto de los botones no seleccionados
+  },
+  selectedText: {
+    color: 'white', // Color del texto del botón seleccionado
+  },
+  registerButton: {
+    height: 40,
+    backgroundColor: "#7F5232",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  registerButtonText: {
+    color: "white",
+    fontWeight: "bold",
   },
 });
 
 export default LoginScreen;
-

@@ -9,6 +9,7 @@ import {
   Image,
 } from "react-native";
 import { ButtonGroup } from "@rneui/themed";
+import axios from 'axios'; // Importa axios para realizar solicitudes HTTP
 
 const RegisterScreen: React.FC = () => {
   const [name, setName] = useState("");
@@ -19,38 +20,62 @@ const RegisterScreen: React.FC = () => {
   const [isBaker, setIsBaker] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [selectedIndexes, setSelectedIndexes] = useState([0, 2]);
+  
+ 
 
-  const handleRegister = () => {
-   
+const handleRegister = async () => {
+  if (!name || !email || !password || (!isBaker && !address) || (isBaker && !bakeryDetails)) {
+    alert("Por favor completa todos los campos");
+    return;
+  }
+
+  const userData = {
+    nombre: name,
+    correo_electronico: email,
+    contrasena: password, // Asegúrate de que la clave sea "contrasena" en lugar de "contraseña"
+    rol: isBaker ? "Panadero" : "Usuario",
+    direccion: isBaker ? "" : address,
+    detalles_panaderia: isBaker ? bakeryDetails : "",
   };
 
+  try {
+    // Realiza la solicitud HTTP POST al endpoint adecuado
+    const response = await axios.post('http://192.168.1.34:3001/api/user/crear', userData);
+    alert("Usuario creado exitosamente");
+    // Aquí podrías redirigir al usuario a otra pantalla, si es necesario
+  } catch (error) {
+    // Si hay un error, muestra un mensaje de error al usuario
+    alert("Hubo un error al crear el usuario. Por favor, inténtalo de nuevo más tarde.");
+  }
+};
+
+  
+
   return (
+    <ImageBackground
+      source={require("../assets/fondo2.jpg")}
+      style={styles.backgroundImage}
+    >
     <View style={styles.container}>
-      <ImageBackground
-        source={require("../assets/fondo.jpg")} // Tu imagen de fondo
-        style={styles.backgroundImage}
-      >
+      
         <View style={styles.overlay}>
           <Image
             source={require("../assets/PANADERO.png")}
             style={styles.logo}
           />
         </View>
-      </ImageBackground>
+      
 
       <View style={styles.wrapper}>
-        
-          <ButtonGroup
-            buttonStyle={styles.button1}
-            buttons={["REGISTRO","INICIO" ]}
-            selectedIndex={selectedIndex}
-            onPress={(value) => {
-              setSelectedIndex(value);
-            }}
-            
-            
-          />
-        
+        <ButtonGroup
+          
+          containerStyle={styles.buttonGroup}
+          buttons={["REGISTRO", "INICIO"]}
+          selectedIndex={selectedIndex}
+          onPress={(value) => {
+            setSelectedIndex(value);
+          }}
+        />
 
         <Text style={styles.title}>Registro</Text>
         <TextInput
@@ -74,6 +99,15 @@ const RegisterScreen: React.FC = () => {
           value={password}
           secureTextEntry
         />
+        <ButtonGroup
+         
+          containerStyle={styles.buttonGroup}
+          buttons={["Usuario", "Panadero"]}
+          selectedIndex={isBaker ? 1 : 0}
+          onPress={(value) => {
+            setIsBaker(value === 1);
+          }}
+        />
         {isBaker ? (
           <TextInput
             style={styles.input}
@@ -89,11 +123,13 @@ const RegisterScreen: React.FC = () => {
             value={address}
           />
         )}
-        <TouchableOpacity style={styles.button} onPress={handleRegister}>
-          <Text style={styles.buttonText}>Registrarse</Text>
+        <TouchableOpacity  style={styles.registerButton} onPress={handleRegister}>
+          <Text  style={styles.registerButtonText}>Registrarse</Text>
         </TouchableOpacity>
+      
       </View>
     </View>
+    </ImageBackground>
   );
 };
 
@@ -127,26 +163,8 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
-    elevation: 5,
+    elevation: 34,
   },
- /* header: {
-    width: "100%",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 20,
-  },*/
- /* headerButton: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 5,
-    backgroundColor: "blue",
-    width: "48%",
-  },
-  headerButtonText: {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "center",
-  },*/
   logo: {
     width: 150,
     height: 150,
@@ -169,22 +187,36 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginBottom: 10,
   },
+  buttonGroup: {
+    borderRadius: 20, 
+    overflow: "hidden", 
+  },
   button: {
-    width: "100%",
-    height: 40,
-    backgroundColor: "blue",
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 5,
-    marginTop: 20,
+    borderRadius: 20,
+    height: 20,
+    width:20
   },
-  button1:{
-    borderRadius:23
-  },
+ 
   buttonText: {
     color: "white",
     fontWeight: "bold",
   },
+
+  registerButton: {
+    width: "60%",
+    height: 50,
+    backgroundColor: "blue",
+    justifyContent: "center", 
+    alignItems: "center", 
+    borderRadius: 25, 
+    alignSelf: "center", 
+    marginTop: 20, 
+  },
+  registerButtonText: {
+    color: "white", 
+    fontWeight: "bold", 
+  },
 });
+
 
 export default RegisterScreen;
