@@ -1,3 +1,4 @@
+import { color } from '@rneui/themed/dist/config';
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, ImageBackground } from 'react-native';
 
@@ -48,10 +49,11 @@ const BakeryHomeScreen: React.FC = () => {
     <View style={styles.container}>
       <Text style={styles.title}>Productos Actuales</Text>
       <FlatList
+      style={styles.fondito}
         data={products}
         renderItem={({ item }) => (
           <View style={styles.productItem}>
-            <Text  style={styles.text}>{item.name} - ${item.price}</Text>
+            <Text  style={styles.text}>{item.name} - {item.price}€</Text>
             <TouchableOpacity onPress={() => handleRemoveProduct(item.id)}>
               <Text style={styles.removeButton}>Eliminar</Text>
             </TouchableOpacity>
@@ -101,6 +103,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 10,
+    backgroundColor: "white",
+    padding:5
    
   },
   removeButton: {
@@ -136,8 +140,9 @@ const styles = StyleSheet.create({
     color: 'green',
   },
   text:{
-    color: 'white',
+    color: 'black',
     fontSize: 23,
+   
   }, 
   text1:{
     color: 'white',
@@ -149,7 +154,14 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
   // justifyContent: "center",
    // alignItems: "center",
+   opacity: 0.96,
   },
+  fondito:{
+   
+    opacity:0.8,
+    borderRadius:12,
+  
+  }
 });
 
 export default BakeryHomeScreen;

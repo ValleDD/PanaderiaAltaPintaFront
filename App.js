@@ -12,12 +12,11 @@ import Screen from './Services/Screen';
 
 const App = () => {
   return (
-  /* <ImageBackground
-      source={require("./assets/fondo2.jpg")}
-      style={styles.backgroundImage}
-    >*/
+  
       
-      <Screen/>
+    <AuthProvider>
+    <Screen/>
+    </AuthProvider>
       
   
       

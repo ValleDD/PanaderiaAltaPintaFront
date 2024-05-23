@@ -9,6 +9,7 @@ import {
   Image,
 } from "react-native";
 import { ButtonGroup } from "@rneui/themed";
+import axios from 'axios'; // Importa axios para realizar solicitudes HTTP
 
 const RegisterScreen: React.FC = () => {
   const [name, setName] = useState("");
@@ -19,25 +20,35 @@ const RegisterScreen: React.FC = () => {
   const [isBaker, setIsBaker] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [selectedIndexes, setSelectedIndexes] = useState([0, 2]);
-  //fallo en elregistro en el postmant lo hace pero aqui no
+  
+ 
 
-  const handleRegister = () => {
-    if (!name || !email || !password || (!isBaker && !address) || (isBaker && !bakeryDetails)) {
-      alert("Por favor completa todos los campos");
-      return;
-    }
-  
-    const userData = {
-      nombre: name,
-      correo_electronico: email,
-      contraseña: password,
-      rol: isBaker ? "Panadero" : "Usuario",
-      direccion: isBaker ? "" : address,
-      detalles_panaderia: isBaker ? bakeryDetails : "",
-    };
-  
-   //seguir con la conexion
+const handleRegister = async () => {
+  if (!name || !email || !password || (!isBaker && !address) || (isBaker && !bakeryDetails)) {
+    alert("Por favor completa todos los campos");
+    return;
+  }
+
+  const userData = {
+    nombre: name,
+    correo_electronico: email,
+    contrasena: password, // Asegúrate de que la clave sea "contrasena" en lugar de "contraseña"
+    rol: isBaker ? "Panadero" : "Usuario",
+    direccion: isBaker ? "" : address,
+    detalles_panaderia: isBaker ? bakeryDetails : "",
   };
+
+  try {
+    // Realiza la solicitud HTTP POST al endpoint adecuado
+    const response = await axios.post('http://192.168.1.34:3001/api/user/crear', userData);
+    alert("Usuario creado exitosamente");
+    // Aquí podrías redirigir al usuario a otra pantalla, si es necesario
+  } catch (error) {
+    // Si hay un error, muestra un mensaje de error al usuario
+    alert("Hubo un error al crear el usuario. Por favor, inténtalo de nuevo más tarde.");
+  }
+};
+
   
 
   return (
