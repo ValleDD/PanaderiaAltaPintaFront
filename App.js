@@ -1,25 +1,16 @@
+import React from "react";
+import { StyleSheet, ImageBackground } from "react-native";
+import Screen from "./Services/Screen";
+import { AuthProvider } from "./Context/AuthContext";
 
-import { StyleSheet } from 'react-native';
-import HomeScreen from './Component/HomeScreen';
-import LoginScreen from './Component/LoginScreen';
-import RegisterScreen from './Component/RegisterScreen';
-
-import BakeryHomeScreen from './Component/BakeyHomeScreen';
-import ClientHomeScreen from './Component/ClientHomeScreen';
-
-
-
-export default function App() {
+const App = () => {
   return (
-    <RegisterScreen/>
+    <AuthProvider>
+      <Screen />
+    </AuthProvider>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+const styles = StyleSheet.create({});
+
+export default App;
