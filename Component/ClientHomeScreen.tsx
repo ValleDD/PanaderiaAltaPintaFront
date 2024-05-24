@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,114 +9,107 @@ import {
   TextInput,
   ImageBackground,
 } from "react-native";
+import axios from "axios";
+
+const defaultProductImage = require("../assets/producto1.jpg");
 
 const ClientHomeScreen = ({ navigation, cart = [], setCart }) => {
+  const [sweets, setSweets] = useState([]);
+  const [salty, setSalty] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [quantities, setQuantities] = useState({});
-  const [selectedCategory, setSelectedCategory] = useState("Pan");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [quantity, setQuantity] = useState(0);
 
-  const products = [
-    { id: '1', name: 'Pan Integral', price: '2.50€', image: require('../assets/producto1.jpg'), category: 'Pan' },
-    { id: '2', name: 'Dulce de Leche', price: '3.00€', image: require('../assets/bollosChocolate.jpg'), category: 'Dulce' },
-    { id: '3', name: 'Pan de Molde', price: '2.00€', image: require('../assets/producto1.jpg'), category: 'Pan' },
-    { id: '4', name: 'Dulce de Fresa', price: '3.50€', image: require('../assets/bollosChocolate.jpg'), category: 'Dulce' },
-  ];
+  useEffect(() => {
+    if (selectedCategory === "Dulce" || selectedCategory === "Salado") {
+      fetchProductsByCategory(selectedCategory);
+    }
+  }, [selectedCategory]);
+
+  const fetchProductsByCategory = async (category) => {
+    try {
+      const response = await axios.get(
+        `http://192.168.1.38:3001/api/product/${category}`
+      );
+      const data = response.data;
+      if (category === "Dulce") {
+        setSweets(data);
+      } else if (category === "Salado") {
+        setSalty(data);
+      }
+    } catch (error) {
+      console.error(
+        `Hubo un error al obtener los productos de tipo "${category}":`,
+        error
+      );
+    }
+  };
+
+  const handleAddToCart = () => {
+    if (selectedProduct) {
+      const updatedCart = [...cart];
+      const existingItemIndex = updatedCart.findIndex(
+        (cartItem) => cartItem.id === selectedProduct.id
+      );
+
+      if (existingItemIndex !== -1) {
+        updatedCart[existingItemIndex].quantity += quantity;
+      } else {
+        updatedCart.push({ ...selectedProduct, quantity });
+      }
+
+      setCart(updatedCart);
+      setQuantity(0);
+    }
+  };
+
+  const handleIncrementQuantity = () => {
+    setQuantity(quantity + 1);
+  };
+
+  const handleDecrementQuantity = () => {
+    if (quantity > 0) {
+      setQuantity(quantity - 1);
+    }
+  };
 
   const renderProductItem = ({ item }) => (
-    <View style={styles.productContainer1}>
-      <Image source={item.image} style={styles.productImage} />
+    <View style={styles.productContainer}>
+      <Image
+        source={item.imagenURL ? { uri: item.imagenURL } : defaultProductImage}
+        style={styles.productImage}
+      />
       <View style={styles.productTextContainer}>
-        <Text style={styles.productName}>{item.name}</Text>
-        <Text style={styles.productPrice}>{item.price}</Text>
+        <Text style={styles.productName}>{item.Nombre}</Text>
+        <Text style={styles.productPrice}>{item.precio}</Text>
       </View>
       <View style={styles.actionsContainer}>
-        <View style={styles.counterContainer}>
-          <TouchableOpacity onPress={() => decrementQuantity(item)}>
-            <Text style={styles.counterButton}>-</Text>
-          </TouchableOpacity>
-          <Text style={styles.counterText}>{getProductQuantity(item)}</Text>
-          <TouchableOpacity onPress={() => incrementQuantity(item)}>
-            <Text style={styles.counterButton}>+</Text>
-          </TouchableOpacity>
-        </View>
-        <TouchableOpacity onPress={() => addToCart(item)}>
-          <Text style={styles.addButton}>Añadir</Text>
+        <TouchableOpacity
+          style={styles.quantityButton}
+          onPress={handleDecrementQuantity}
+        >
+          <Text style={styles.quantityButtonText}>-</Text>
+        </TouchableOpacity>
+        <Text style={styles.quantityText}>{quantity}</Text>
+        <TouchableOpacity
+          style={styles.quantityButton}
+          onPress={handleIncrementQuantity}
+        >
+          <Text style={styles.quantityButtonText}>+</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => {
+            setSelectedProduct(item);
+            handleAddToCart();
+          }}
+        >
+          <Text style={styles.addButtonLabel}>Añadir</Text>
         </TouchableOpacity>
       </View>
-      <TextInput
-        style={styles.notesInput}
-        placeholder="Añadir notas..."
-        placeholderTextColor="black"
-        onChangeText={(text) => handleNotesChange(item, text)}
-        value={getProductNotes(item)}
-      />
     </View>
   );
-
-  const addToCart = (product) => {
-    const quantity = getProductQuantity(product);
-    
-    // Obtener la fecha actual y formatearla como dd-mm-yyyy
-    const currentDate = new Date();
-    const day = String(currentDate.getDate()).padStart(2, '0');
-    const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // getMonth() retorna 0-11, por lo que sumamos 1
-    const year = currentDate.getFullYear();
-    const formattedDate = `${day}-${month}-${year}`;
-  
-    if (quantity > 0) {
-      const productInCart = cart.find(item => item.id === product.id);
-      if (productInCart) {
-        const updatedCart = cart.map(item => {
-          if (item.id === product.id) {
-            return { ...item, quantity: item.quantity + quantity };
-          }
-          return item;
-        });
-        setCart(updatedCart);
-      } else {
-        setCart([...cart, { ...product, quantity, notes: "", date: formattedDate }]);
-      }
-      setQuantities({ ...quantities, [product.id]: 0 });
-    }
-  };
-
-  const incrementQuantity = (product) => {
-    const currentQuantity = getProductQuantity(product);
-    setQuantities({ ...quantities, [product.id]: currentQuantity + 1 });
-  };
-
-  const decrementQuantity = (product) => {
-    const currentQuantity = getProductQuantity(product);
-    if (currentQuantity > 0) {
-      setQuantities({ ...quantities, [product.id]: currentQuantity - 1 });
-    }
-  };
-
-  const getProductQuantity = (product) => {
-    return quantities[product.id] || 0;
-  };
-
-  const handleNotesChange = (product, text) => {
-    const updatedCart = cart.map((item) => {
-      if (item.id === product.id) {
-        return { ...item, notes: text };
-      }
-      return item;
-    });
-    setCart(updatedCart);
-  };
-
-  const getProductNotes = (product) => {
-    const cartItem = cart.find((item) => item.id === product.id);
-    return cartItem ? cartItem.notes : "";
-  };
-
-  const filterProductsByCategory = () => {
-    return products.filter(product =>
-      product.category === selectedCategory &&
-      product.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  };
 
   return (
     <ImageBackground
@@ -133,27 +126,44 @@ const ClientHomeScreen = ({ navigation, cart = [], setCart }) => {
           />
         </View>
         <View style={styles.productOption}>
-          <TouchableOpacity onPress={() => setSelectedCategory("Pan")}>
-            <Text style={styles.productLetter}>Pan</Text>
-          </TouchableOpacity>
           <TouchableOpacity onPress={() => setSelectedCategory("Dulce")}>
-            <Text style={styles.productLetter}>Dulce</Text>
+            <Text
+              style={[
+                styles.category,
+                selectedCategory === "Dulce" && styles.selectedCategory,
+              ]}
+            >
+              Dulce
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setSelectedCategory("Salado")}>
+            <Text
+              style={[
+                styles.category,
+                selectedCategory === "Salado" && styles.selectedCategory,
+              ]}
+            >
+              Salado
+            </Text>
           </TouchableOpacity>
         </View>
-        <View style={styles.flatlistContainer}>
-          <FlatList
-            style={styles.flatlist}
-            data={filterProductsByCategory()}
-            renderItem={renderProductItem}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.productList}
-          />
-        </View>
+        <FlatList
+          style={styles.flatlist}
+          data={selectedCategory === "Dulce" ? sweets : salty}
+          renderItem={renderProductItem}
+          keyExtractor={(item, index) =>
+            item.id ? item.id.toString() : index.toString()
+          }
+          contentContainerStyle={styles.productList}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+        />
         <TouchableOpacity
           style={styles.viewCartButton}
-          onPress={() => navigation.navigate('Cart')}
+          onPress={() => navigation.navigate("Cart")}
         >
-          <Text style={styles.viewCartButtonText}>Ver Cesta ({cart.reduce((total, item) => total + item.quantity, 0)})</Text>
+          <Text style={styles.viewCartButtonText}>
+            Ver Cesta ({cart.reduce((total, item) => total + item.quantity, 0)})
+          </Text>
         </TouchableOpacity>
       </View>
     </ImageBackground>
@@ -171,7 +181,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f0f0f0",
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
-    borderRadius: 20
+    borderRadius: 20,
   },
   searchBar: {
     height: 40,
@@ -184,7 +194,7 @@ const styles = StyleSheet.create({
   productList: {
     paddingHorizontal: 10,
   },
-  productContainer1: {
+  productContainer: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 10,
@@ -209,88 +219,83 @@ const styles = StyleSheet.create({
   },
   productPrice: {
     fontSize: 14,
-    color: 'black',
+    color: "black",
   },
   actionsContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginRight: 10,
+    marginLeft: 10,
+  },
+  quantityButton: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    backgroundColor: "white",
+    borderRadius: 5,
+  },
+  quantityButtonText: {
+    fontSize: 20,
+    color: "black",
+  },
+  quantityText: {
+    marginHorizontal: 10,
+    fontSize: 16,
   },
   addButton: {
     paddingHorizontal: 10,
     paddingVertical: 5,
     backgroundColor: "#007bff",
-    color: "#fff",
+    color:"#fff",
     borderRadius: 5,
-    marginRight: 10,
-  },
-  counterContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderRadius: 5,
-    borderColor: "#ccc",
-  },
-  counterButton: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    backgroundColor: "white",
-    color: "black",
-    borderRadius: 5,
-  },
-  counterText: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    color: "black",
-  },
-  notesInput: {
-    flex: 1,
-    height: 40,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    paddingHorizontal: 10,
     marginLeft: 10,
-    color: "black",
   },
-  flatlistContainer: {
-    flex: 1,
-    marginTop: 10,
-    backgroundColor: 'white'
+  addButtonLabel: {
+    color: "#fff",
+    fontSize: 16,
+  },
+  backgroundImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
   },
   flatlist: {
     flex: 1,
-    borderRadius: 5,
+    marginTop: 10,
+    backgroundColor: "white",
   },
-  backgroundImage: {
-    flex: 1,
-    resizeMode: "cover",
-    opacity: 0.9,
+  viewCartButton: {
+    padding: 15,
+    backgroundColor: "#fa560b",
+    borderRadius: 25,
+    alignItems: "center",
+    margin: 20,
+  },
+  viewCartButtonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
   },
   productOption: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginTop: 10,
     marginLeft: 20,
     marginRight: 20,
   },
-  productLetter: {
+  category: {
     fontSize: 23,
-    color: '#fa560b',
-    fontWeight: 'bold',
+    color: "#fa560b",
+    fontWeight: "bold",
   },
-  viewCartButton: {
-    padding: 15,
-    backgroundColor: '#fa560b',
-    borderRadius: 25,
-    alignItems: 'center',
-    margin: 20,
+  selectedCategory: {
+    borderBottomWidth: 2,
+    borderColor: "#fa560b",
   },
-  viewCartButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
+  separator: {
+    height: 1,
+    backgroundColor: "#eee",
+    marginVertical: 5,
   },
 });
 
 export default ClientHomeScreen;
+
