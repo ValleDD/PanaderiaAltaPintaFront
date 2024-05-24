@@ -8,5 +8,5 @@ export type RootDrawerParamList = {
     Login: undefined;
     Register: undefined;
     Clients: undefined;
-    Cart: undefined;
+    BasketBuy: undefined;
   };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect,  } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,58 +6,67 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
-  ImageBackground
+  ImageBackground,
 } from "react-native";
 
 const BasketBuy = ({ navigation }) => {
+  // State variable to store cart data
   const [cart, setCart] = useState([]);
 
+  // Fetch cart data from the server when the component mounts
   useEffect(() => {
-    // Llamada al servidor para obtener los datos del carrito
     fetch("http://192.168.1.38:3001/api/pedido/listar")
       .then((response) => response.json())
       .then((data) => setCart(data))
-      .catch((error) => console.error("Error al obtener datos del carrito:", error));
+      .catch((error) => console.error("Error fetching cart data:", error));
   }, []);
 
+  // Render individual cart items
   const renderCartItem = ({ item }) => (
     <View style={styles.cartItemContainer}>
       <Image source={{ uri: item.image }} style={styles.cartItemImage} />
       <View style={styles.cartItemTextContainer}>
         <Text style={styles.cartItemName}>{item.name}</Text>
         <Text style={styles.cartItemPrice}>{item.price}</Text>
-        <Text style={styles.cartItemQuantity}>Cantidad: {item.quantity}</Text>
+        <Text style={styles.cartItemQuantity}>Quantity: {item.quantity}</Text>
         {item.notes ? (
-          <Text style={styles.cartItemNotes}>Notas: {item.notes}</Text>
+          <Text style={styles.cartItemNotes}>Notes: {item.notes}</Text>
         ) : null}
       </View>
     </View>
   );
 
+  // Render UI
   return (
     <ImageBackground
-    source={require("../assets/fondo2.jpg")}
-    style={styles.backgroundImage}
-  >
-    <View style={styles.container}>
-      <Text style={styles.heading}>Cesta de la compra</Text>
-      <FlatList
-        data={cart}
-        renderItem={renderCartItem}
-        keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={styles.cartList}
-      />
-      <TouchableOpacity
-        style={styles.paymentButton}
-        onPress={() => navigation.navigate("Payment")}
-      >
-        <Text style={styles.paymentButtonText}>Ir a Pagar</Text>
-      </TouchableOpacity>
-    </View>
+      source={require("../assets/fondo2.jpg")}
+      style={styles.backgroundImage}
+    >
+      <View style={styles.container}>
+        {/* Title */}
+        <Text style={styles.heading}>Shopping Basket</Text>
+
+        {/* List of cart items */}
+        <FlatList
+          data={cart}
+          renderItem={renderCartItem}
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={styles.cartList}
+        />
+
+        {/* Button to navigate to payment screen */}
+        <TouchableOpacity
+          style={styles.paymentButton}
+          onPress={() => navigation.navigate("Payment")}
+        >
+          <Text style={styles.paymentButtonText}>Go to Pay</Text>
+        </TouchableOpacity>
+      </View>
     </ImageBackground>
   );
 };
 
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -67,10 +76,8 @@ const styles = StyleSheet.create({
     fontSize: 34,
     fontWeight: "bold",
     marginBottom: 20,
-    color:'#fc4b08',
+    color: "#fc4b08",
     textAlign: "center",
-    justifyContent: "center", 
-    alignItems: "center"
   },
   cartList: {
     paddingBottom: 20,

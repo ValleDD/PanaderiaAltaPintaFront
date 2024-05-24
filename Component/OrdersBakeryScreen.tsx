@@ -1,32 +1,41 @@
-import React, { useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  ImageBackground,
+} from "react-native";
 
+// Initial dummy orders data
 const initialOrders = [
   {
     id: 12345,
-    clientName: 'Juan Pérez',
+    clientName: "Juan Pérez",
     products: [
-      { name: 'Pan Integral', quantity: 2 },
-      { name: 'Pan Blanco', quantity: 1 },
+      { name: "Pan Integral", quantity: 2 },
+      { name: "Pan Blanco", quantity: 1 },
     ],
     done: false,
   },
   {
     id: 12346,
-    clientName: 'María López',
-    products: [
-      { name: 'Pan de Avena', quantity: 3 },
-    ],
+    clientName: "María López",
+    products: [{ name: "Pan de Avena", quantity: 3 }],
     done: false,
   },
 ];
 
+// Functional component for displaying bakery orders
 const OrdersBakeryScreen = () => {
+  // State to manage orders
   const [orders, setOrders] = useState(initialOrders);
 
+  // Function to toggle the status of an order (done/pending)
   const toggleOrderDone = (orderId) => {
     setOrders(
-      orders.map(order =>
+      orders.map((order) =>
         order.id === orderId ? { ...order, done: !order.done } : order
       )
     );
@@ -38,21 +47,29 @@ const OrdersBakeryScreen = () => {
       style={styles.backgroundImage}
     >
       <View style={styles.container}>
+        {/* Title */}
         <Text style={styles.title}>Pedidos Pendientes</Text>
+
+        {/* List of orders */}
         <FlatList
           data={orders}
           renderItem={({ item }) => (
             <TouchableOpacity
               style={[
                 styles.orderContainer,
-                { backgroundColor: item.done ? '#C1E1C5' : 'white' },
+                { backgroundColor: item.done ? "#C1E1C5" : "white" },
               ]}
               onPress={() => toggleOrderDone(item.id)}
             >
+              {/* Order ID */}
               <Text style={styles.orderId}>ID del Pedido: {item.id}</Text>
+
+              {/* Client Name */}
               <Text style={styles.clientName}>
                 Nombre del Cliente: {item.clientName}
               </Text>
+
+              {/* Products */}
               <Text style={styles.productsTitle}>Productos:</Text>
               {item.products.map((product, index) => (
                 <Text key={index} style={styles.productItem}>
@@ -68,6 +85,7 @@ const OrdersBakeryScreen = () => {
   );
 };
 
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -76,10 +94,10 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
-    color: 'white',
-    textAlign: 'center',
+    color: "white",
+    textAlign: "center",
   },
   orderContainer: {
     borderRadius: 8,
@@ -89,7 +107,7 @@ const styles = StyleSheet.create({
   },
   orderId: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 10,
   },
   clientName: {
@@ -98,7 +116,7 @@ const styles = StyleSheet.create({
   },
   productsTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 5,
   },
   productItem: {
@@ -107,7 +125,7 @@ const styles = StyleSheet.create({
   },
   backgroundImage: {
     flex: 1,
-    resizeMode: 'cover',
+    resizeMode: "cover",
   },
 });
 

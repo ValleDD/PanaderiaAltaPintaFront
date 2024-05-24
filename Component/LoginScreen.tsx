@@ -10,33 +10,41 @@ import {
   Dimensions,
   Alert,
 } from "react-native";
-import { useNavigation, NavigationProp, RouteProp } from '@react-navigation/native';
-import { ButtonGroup } from 'react-native-elements'; // Make sure you have react-native-elements installed
-import { useAuth } from "../Context/AuthContext";
-import axios from 'axios';
+import {
+  useNavigation,
+  NavigationProp,
+  RouteProp,
+} from "@react-navigation/native";
+import { ButtonGroup } from "react-native-elements"; // Make sure you have react-native-elements installed
+import { useAuth } from "../Context/AuthContext"; // Assuming you have an AuthContext for handling authentication
+import axios from "axios"; // Import Axios for making HTTP requests
 
 const { height } = Dimensions.get("window");
 
+// Define types for route and navigation props
 type RootStackParamList = {
   Login: { isRegister: boolean };
   clientHome: undefined;
 };
 
-type LoginScreenRouteProp = RouteProp<RootStackParamList, 'Login'>;
+type LoginScreenRouteProp = RouteProp<RootStackParamList, "Login">;
 
+// Functional component for the Login Screen
 const LoginScreen: React.FC<{ route: LoginScreenRouteProp }> = ({ route }) => {
-  const { login } = useAuth();
-  const [correo_electronico, setCorreo_electronico] = useState<string>('');
-  const [contrasena, setContrasena] = useState<string>('');
-  const [nombre, setNombre] = useState<string>('');
-  const [bakeryDetails, setBakeryDetails] = useState<string>('');
-  const [direccion, setDireccion] = useState<string>('');
+  // State variables for managing user input and component state
+  const { login } = useAuth(); // Use the authentication context hook
+  const [correo_electronico, setCorreo_electronico] = useState<string>("");
+  const [contrasena, setContrasena] = useState<string>("");
+  const [nombre, setNombre] = useState<string>("");
+  const [bakeryDetails, setBakeryDetails] = useState<string>("");
+  const [direccion, setDireccion] = useState<string>("");
   const [rol, setRol] = useState<boolean>(false);
   const [selectedIndex, setSelectedIndex] = useState<number>(1);
-  const navigation = useNavigation<NavigationProp<any>>();
+  const navigation = useNavigation<NavigationProp<any>>(); // Use the navigation hook
   const [isRegister, setIsRegister] = useState<boolean>(false);
-  const [error, setError] = React.useState('');
+  const [error, setError] = React.useState("");
 
+  // Effect to handle changes in the route params
   useEffect(() => {
     if (route.params?.isRegister) {
       setIsRegister(true);
@@ -44,41 +52,52 @@ const LoginScreen: React.FC<{ route: LoginScreenRouteProp }> = ({ route }) => {
     }
   }, [route.params?.isRegister]);
 
+  // Function to handle login
   const handleLogin = async () => {
     try {
-      await login(correo_electronico, contrasena);
-      navigation.navigate('Home');
-    
+      await login(correo_electronico, contrasena); // Use the login function from the authentication context
+      navigation.navigate("Client Home"); // Navigate to the Home screen after successful login
     } catch (error) {
-      setError(error.message);
+      setError(error.message); // Set error message if login fails
     }
   };
 
+  // Function to handle registration
   const handleRegister = async () => {
     try {
+      // Create user data object based on input values
       const userData = {
         nombre,
         correo_electronico,
         contrasena,
-        rol: selectedIndex === 1 ? 'panadero ' : 'cliente',
-        bakeryDetails: selectedIndex === 1 ? bakeryDetails : '',
-        direccion: selectedIndex === 0 ? direccion : '',
+        rol: selectedIndex === 1 ? "panadero " : "cliente",
+        bakeryDetails: selectedIndex === 1 ? bakeryDetails : "",
+        direccion: selectedIndex === 0 ? direccion : "",
       };
-      const response = await axios.post('http://192.168.1.38:3001/api/user/create', userData);
+      // Make a POST request to create a new user
+      const response = await axios.post(
+        "http://192.168.1.38:3001/api/user/create",
+        userData
+      );
       if (response.status === 201) {
-        Alert.alert('Registro exitoso', response.data.message);
+        // Display success message if registration is successful
+        Alert.alert("Registro exitoso", response.data.message);
         setIsRegister(false);
         setSelectedIndex(1);
       } else {
+        // Throw error if registration fails
         throw new Error(response.data.message);
       }
     } catch (error) {
-      console.error('Error registering user:', error);
-      Alert.alert('Hubo un error al crear el usuario. Por favor, inténtalo de nuevo.');
+      // Handle registration error
+      console.error("Error registering user:", error);
+      Alert.alert(
+        "Hubo un error al crear el usuario. Por favor, inténtalo de nuevo."
+      );
     }
   };
-  
 
+  // Render UI
   return (
     <ImageBackground
       source={require("../assets/fondo2.jpg")}
@@ -93,6 +112,7 @@ const LoginScreen: React.FC<{ route: LoginScreenRouteProp }> = ({ route }) => {
         </View>
 
         <View style={styles.wrapper}>
+          {/* Button group for switching between Register and Login screens */}
           <ButtonGroup
             containerStyle={styles.buttonGroup}
             buttons={["REGISTRO", "INICIO"]}
@@ -107,6 +127,7 @@ const LoginScreen: React.FC<{ route: LoginScreenRouteProp }> = ({ route }) => {
             selectedTextStyle={styles.selectedText} // Style for the text of the selected button
           />
 
+          {/* Conditional rendering based on whether it's the Register or Login screen */}
           {isRegister ? (
             <View>
               <Text style={styles.title}>Registro</Text>
@@ -131,6 +152,7 @@ const LoginScreen: React.FC<{ route: LoginScreenRouteProp }> = ({ route }) => {
                 value={contrasena}
                 secureTextEntry
               />
+              {/* Button group for selecting user role */}
               <ButtonGroup
                 containerStyle={styles.buttonGroup}
                 buttons={["Usuario", "Panadero"]}
@@ -139,6 +161,7 @@ const LoginScreen: React.FC<{ route: LoginScreenRouteProp }> = ({ route }) => {
                   setSelectedIndex(value);
                 }}
               />
+              {/* Additional input fields based on selected role */}
               {selectedIndex === 1 ? (
                 <TextInput
                   style={styles.input}
@@ -154,13 +177,18 @@ const LoginScreen: React.FC<{ route: LoginScreenRouteProp }> = ({ route }) => {
                   value={direccion}
                 />
               )}
-              <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
+              {/* Register button */}
+              <TouchableOpacity
+                style={styles.registerButton}
+                onPress={handleRegister}
+              >
                 <Text style={styles.registerButtonText}>Registrarse</Text>
               </TouchableOpacity>
             </View>
           ) : (
             <View>
               <Text style={styles.title}>Inicio de Sesión</Text>
+              {/* Login input fields */}
               <TextInput
                 style={styles.input}
                 placeholder="Correo Electrónico"
@@ -176,7 +204,11 @@ const LoginScreen: React.FC<{ route: LoginScreenRouteProp }> = ({ route }) => {
                 value={contrasena}
                 secureTextEntry
               />
-              <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+              {/* Login button */}
+              <TouchableOpacity
+                style={styles.loginButton}
+                onPress={handleLogin}
+              >
                 <Text style={styles.buttonText}>Iniciar Sesión</Text>
               </TouchableOpacity>
             </View>
@@ -218,7 +250,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 10,
     marginTop: 15,
-    marginBottom: 20
+    marginBottom: 20,
   },
   title: {
     fontSize: 24,
@@ -237,7 +269,7 @@ const styles = StyleSheet.create({
   },
   loginButton: {
     height: 40,
-    backgroundColor: "#7F5232", 
+    backgroundColor: "#7F5232",
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 5,
@@ -251,24 +283,24 @@ const styles = StyleSheet.create({
     width: 150,
     height: 150,
     resizeMode: "contain",
-    borderRadius: 40
+    borderRadius: 40,
   },
   buttonGroup: {
     marginBottom: 20,
     borderRadius: 25,
-    backgroundColor: 'white', 
+    backgroundColor: "white",
   },
   button: {
-    backgroundColor: 'white', 
+    backgroundColor: "white",
   },
   selectedButton: {
-    backgroundColor: '#7F5232',
+    backgroundColor: "#7F5232",
   },
   text: {
-    color: 'black', // Color of the text of unselected buttons
+    color: "black", // Color of the text of unselected buttons
   },
   selectedText: {
-    color: 'white', // Color of the text of the selected button
+    color: "white", // Color of the text of the selected button
   },
   registerButton: {
     height: 40,
@@ -285,4 +317,3 @@ const styles = StyleSheet.create({
 });
 
 export default LoginScreen;
-

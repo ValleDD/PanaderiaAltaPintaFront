@@ -10,24 +10,26 @@ import {
   ImageBackground,
 } from "react-native";
 import axios from "axios";
-
 const defaultProductImage = require("../assets/producto1.jpg");
 
 const ClientHomeScreen = ({ navigation, cart = [], setCart }) => {
+  // State variables to manage product data, search query, selected category, selected product, quantity, and product notes
   const [sweets, setSweets] = useState([]);
   const [salty, setSalty] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [quantity, setQuantity] = useState(0);
-  const [productNotes, setProductNotes] = useState({}); // Estado para almacenar las notas de los productos
+  const [productNotes, setProductNotes] = useState({}); // State to store product notes
 
+  // Fetch products based on the selected category
   useEffect(() => {
     if (selectedCategory === "Dulce" || selectedCategory === "Salado") {
       fetchProductsByCategory(selectedCategory);
     }
   }, [selectedCategory]);
 
+  // Fetch products from the server based on category
   const fetchProductsByCategory = async (category) => {
     try {
       const response = await axios.get(
@@ -40,16 +42,13 @@ const ClientHomeScreen = ({ navigation, cart = [], setCart }) => {
         setSalty(data);
       }
     } catch (error) {
-      console.error(
-        `Hubo un error al obtener los productos de tipo "${category}":`,
-        error
-      );
+      console.error(`Error fetching "${category}" products:`, error);
     }
   };
 
+  // Add product to cart and send request to server to create the order
   const handleAddToCart = async (product) => {
     if (product) {
-      // Añadir el producto al carrito local
       const updatedCart = [...cart];
       const existingItemIndex = updatedCart.findIndex(
         (cartItem) => cartItem.id === product.id
@@ -64,36 +63,42 @@ const ClientHomeScreen = ({ navigation, cart = [], setCart }) => {
       setCart(updatedCart);
       setQuantity(0);
 
-      // Enviar la solicitud al servidor para crear el pedido
       try {
-        const response = await axios.post("http://192.168.1.38:3001/api/pedido/create", {
-          productId: product.id,
-          quantity,
-          note: productNotes[product.id], // Incluye la nota del producto
-          // Otros datos relevantes del producto que puedas necesitar para el pedido
-        });
+        const response = await axios.post(
+          "http://192.168.1.38:3001/api/pedido/create",
+          {
+            productId: product.id,
+            quantity,
+            note: productNotes[product.id], // Include product note
+            // Other relevant product data you may need for the order
+          }
+        );
 
-        console.log("Pedido creado exitosamente:", response.data);
+        console.log("Order created successfully:", response.data);
       } catch (error) {
-        console.error("Error al crear el pedido:", error);
+        console.error("Error creating order:", error);
       }
     }
   };
 
+  // Increment product quantity
   const handleIncrementQuantity = () => {
     setQuantity(quantity + 1);
   };
 
+  // Decrement product quantity
   const handleDecrementQuantity = () => {
     if (quantity > 0) {
       setQuantity(quantity - 1);
     }
   };
 
+  // Handle product note change
   const handleNoteChange = (productId, note) => {
     setProductNotes({ ...productNotes, [productId]: note });
   };
 
+  // Render individual product item
   const renderProductItem = ({ item }) => (
     <View style={styles.productContainer}>
       <Image
@@ -105,7 +110,7 @@ const ClientHomeScreen = ({ navigation, cart = [], setCart }) => {
         <Text style={styles.productPrice}>{item.precio}</Text>
         <TextInput
           style={styles.noteInput}
-          placeholder="Añadir nota al producto..."
+          placeholder="Add note to product..."
           onChangeText={(note) => handleNoteChange(item.id, note)}
           value={productNotes[item.id] || ""}
         />
@@ -131,7 +136,7 @@ const ClientHomeScreen = ({ navigation, cart = [], setCart }) => {
             handleAddToCart(item);
           }}
         >
-          <Text style={styles.addButtonLabel}>Añadir</Text>
+          <Text style={styles.addButtonLabel}>Add</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -143,16 +148,19 @@ const ClientHomeScreen = ({ navigation, cart = [], setCart }) => {
       style={styles.backgroundImage}
     >
       <View style={styles.container}>
+        {/* Search bar */}
         <View style={styles.searchBarContainer}>
           <TextInput
             style={styles.searchBar}
-            placeholder="Buscar productos..."
+            placeholder="Search products..."
             onChangeText={setSearchQuery}
             value={searchQuery}
           />
         </View>
+
+        {/* Product category selection */}
         <View style={styles.productOption}>
-                  <TouchableOpacity onPress={() => setSelectedCategory("Dulce")}>
+          <TouchableOpacity onPress={() => setSelectedCategory("Dulce")}>
             <Text
               style={[
                 styles.category,
@@ -173,6 +181,8 @@ const ClientHomeScreen = ({ navigation, cart = [], setCart }) => {
             </Text>
           </TouchableOpacity>
         </View>
+
+        {/* Product list */}
         <FlatList
           style={styles.flatlist}
           data={selectedCategory === "Dulce" ? sweets : salty}
@@ -183,12 +193,14 @@ const ClientHomeScreen = ({ navigation, cart = [], setCart }) => {
           contentContainerStyle={styles.productList}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
         />
+
+        {/* View cart button */}
         <TouchableOpacity
           style={styles.viewCartButton}
           onPress={() => navigation.navigate("Cart")}
         >
           <Text style={styles.viewCartButtonText}>
-            Ver Cesta ({cart.reduce((total, item) => total + item.quantity, 0)})
+            View Cart ({cart.reduce((total, item) => total + item.quantity, 0)})
           </Text>
         </TouchableOpacity>
       </View>
@@ -295,7 +307,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 10,
     backgroundColor: "white",
-    opacity: 0.8
+    opacity: 0.8,
   },
   viewCartButton: {
     padding: 15,
@@ -333,4 +345,3 @@ const styles = StyleSheet.create({
 });
 
 export default ClientHomeScreen;
-

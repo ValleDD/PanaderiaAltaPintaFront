@@ -10,6 +10,7 @@ import {
 } from "react-native";
 
 const BakeryHomeScreen = () => {
+  // State variables to manage product data and form inputs
   const [products, setProducts] = useState([]);
   const [newProductName, setNewProductName] = useState("");
   const [newProductPrice, setNewProductPrice] = useState("");
@@ -20,7 +21,7 @@ const BakeryHomeScreen = () => {
   useEffect(() => {
     fetchProducts();
   }, []);
-
+  // Fetch products when component mounts
   const fetchProducts = async () => {
     try {
       const response = await fetch("http://192.168.1.38:3001/api/product/list");
@@ -38,7 +39,7 @@ const BakeryHomeScreen = () => {
       console.error("Error al obtener la lista de productos:", error);
     }
   };
-
+  // Handle adding a new product
   const handleAddProduct = async () => {
     if (
       newProductName &&
@@ -48,20 +49,23 @@ const BakeryHomeScreen = () => {
       newProductImagenURL
     ) {
       try {
-        const response = await fetch("http://192.168.1.38:3001/api/product/create", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            Nombre: newProductName,
-            descripcion: newProductDescription,
-            precio: parseFloat(newProductPrice),
-            tipo: newProductType,
-            idUsuario: "1",
-            imagenURL: newProductImagenURL,
-          }),
-        });
+        const response = await fetch(
+          "http://192.168.1.38:3001/api/product/create",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              Nombre: newProductName,
+              descripcion: newProductDescription,
+              precio: parseFloat(newProductPrice),
+              tipo: newProductType,
+              idUsuario: "1",
+              imagenURL: newProductImagenURL,
+            }),
+          }
+        );
 
         const data = await response.json();
         if (response.ok) {
@@ -80,16 +84,21 @@ const BakeryHomeScreen = () => {
       }
     }
   };
-
+  // Handle removing a product
   const handleRemoveProduct = async (productId) => {
     try {
-      const response = await fetch(`http://192.168.1.38:3001/api/product/delete/${productId}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `http://192.168.1.38:3001/api/product/delete/${productId}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       const data = await response.json();
       if (response.ok) {
-        const updatedProducts = products.filter((product) => product.id !== productId);
+        const updatedProducts = products.filter(
+          (product) => product.id !== productId
+        );
         setProducts(updatedProducts);
         console.log(data.message);
       } else {
@@ -124,42 +133,42 @@ const BakeryHomeScreen = () => {
         />
         <Text style={styles.text1}>AÑADIR PRODUCTO</Text>
         <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Nombre del nuevo producto"
-          onChangeText={setNewProductName}
-          value={newProductName}
-          placeholderTextColor="black"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Precio del nuevo producto"
-          onChangeText={setNewProductPrice}
-          value={newProductPrice}
-          keyboardType="numeric"
-          placeholderTextColor="black"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Descripción del nuevo producto"
-          onChangeText={setNewProductDescription}
-          value={newProductDescription}
-          placeholderTextColor="black"  
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Tipo del nuevo producto"
-          onChangeText={setNewProductType}
-          value={newProductType}
-          placeholderTextColor="black"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="URL de la imagen del nuevo producto"
-          onChangeText={setNewProductImagenURL}
-          value={newProductImagenURL}
-          placeholderTextColor="black"
-        />
+          <TextInput
+            style={styles.input}
+            placeholder="Nombre del nuevo producto"
+            onChangeText={setNewProductName}
+            value={newProductName}
+            placeholderTextColor="black"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Precio del nuevo producto"
+            onChangeText={setNewProductPrice}
+            value={newProductPrice}
+            keyboardType="numeric"
+            placeholderTextColor="black"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Descripción del nuevo producto"
+            onChangeText={setNewProductDescription}
+            value={newProductDescription}
+            placeholderTextColor="black"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Tipo del nuevo producto"
+            onChangeText={setNewProductType}
+            value={newProductType}
+            placeholderTextColor="black"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="URL de la imagen del nuevo producto"
+            onChangeText={setNewProductImagenURL}
+            value={newProductImagenURL}
+            placeholderTextColor="black"
+          />
         </View>
         <TouchableOpacity style={styles.button} onPress={handleAddProduct}>
           <Text style={[styles.buttonText, { color: "white" }]}>
@@ -204,14 +213,14 @@ const styles = StyleSheet.create({
     color: "black",
   },
   inputContainer: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderRadius: 10,
     padding: 10,
     marginBottom: 10,
-    color: 'black',
+    color: "black",
   },
   button: {
-    backgroundColor: '#7F5232',
+    backgroundColor: "#7F5232",
     padding: 10,
     borderRadius: 5,
     alignItems: "center",
