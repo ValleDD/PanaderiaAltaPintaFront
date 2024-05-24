@@ -1,27 +1,32 @@
 import React, { useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { StyleSheet, Image, TouchableOpacity } from "react-native";
-import { DrawerNavigationOptions, createDrawerNavigator } from "@react-navigation/drawer";
-import { useNavigation } from '@react-navigation/native';
+import {
+  DrawerNavigationOptions,
+  createDrawerNavigator,
+} from "@react-navigation/drawer";
+import { useNavigation } from "@react-navigation/native";
 
-import HomeScreen from "../Component/HomeScreen";
 import CustomerOrderScreen from "../Component/CustomerOrderScreen";
 import LoginScreen from "../Component/LoginScreen";
 import ClientHomeScreen from "../Component/ClientHomeScreen";
 import PaymentScreen from "../Component/PaymentScreen";
-import CartScreen from "../Component/CartScreen";
+import CartScreen from "../Component/BasketBuy";
 import BakeryHomeScreen from "../Component/BakeyHomeScreen";
-import OrdersBakeryScreen from "../Component/OrdersEarringsScreen";
+import OrdersBakeryScreen from "../Component/OrdersBakeryScreen";
+import { AuthProvider } from "../Context/AuthContext";
+import HomeScreen from "../Component/HomeScreen";
 
 const Drawer = createDrawerNavigator();
 
 const Screen = () => {
   const [cart, setCart] = useState([]);
 
+  // Drawer navigation options
   const drawerNavigatorScreenOptions: DrawerNavigationOptions = {
     headerTitleAlign: "center",
     headerStyle: {
-      backgroundColor: 'white',
+      backgroundColor: "white",
     },
     headerTintColor: "black",
     drawerItemStyle: {
@@ -29,61 +34,68 @@ const Screen = () => {
     },
     drawerContentStyle: { width: 270, borderRadius: 30 },
     drawerActiveTintColor: "white",
-    drawerActiveBackgroundColor: '#adadad',
+    drawerActiveBackgroundColor: "#adadad",
     drawerInactiveTintColor: "black",
-    drawerInactiveBackgroundColor: 'white',
+    drawerInactiveBackgroundColor: "white",
     drawerType: "back",
   };
 
+  // Function to handle logo press
   const handleLogoPress = () => {
-    console.log("Logo presionado");
+    console.log("Logo pressed");
   };
 
+  // Function to handle cart press
   const handleCartPress = () => {
-    // Tu error original se debía a que la función handleCartPress no tenía acceso a la navegación
-    // Una solución es utilizar useNavigation hook para obtener la navegación
-    const navigation = useNavigation(); // Importa el hook useNavigation
-    navigation.navigate('Cart');
+    // Your original error was because handleCartPress didn't have access to navigation
+    // One solution is to use the useNavigation hook to get navigation
+    const navigation = useNavigation(); // Import the useNavigation hook
+    navigation.navigate("Cart");
   };
 
   return (
-   
-    <NavigationContainer>
-      <Drawer.Navigator
-        initialRouteName="Home"
-        screenOptions={{
-          ...drawerNavigatorScreenOptions,
-          headerRight: () => (
-            <TouchableOpacity onPress={handleCartPress}>
+    <AuthProvider>
+      <NavigationContainer>
+        <Drawer.Navigator
+          initialRouteName="Home"
+          screenOptions={{
+            ...drawerNavigatorScreenOptions,
+            headerRight: () => (
+              <TouchableOpacity onPress={handleCartPress}>
+                <Image
+                  style={styles.ImgCarrito}
+                  source={require("../assets/carro.png")}
+                />
+              </TouchableOpacity>
+            ),
+            headerTitle: () => (
               <Image
-                style={styles.ImgCarrito}
-                source={require("../assets/carro.png")}
+                style={styles.ImgLogo}
+                source={require("../assets/PANADERO.png")}
               />
-            </TouchableOpacity>
-          ),
-          headerTitle: () => (
-            <Image
-              style={styles.ImgLogo}
-              source={require("../assets/PANADERO.png")}
-            />
-          ),
-        }}
-      >
-        <Drawer.Screen name="Home">
-          {(props) => <ClientHomeScreen {...props} cart={cart} setCart={setCart} />}
-        </Drawer.Screen>
-        <Drawer.Screen name="Bakery" component={BakeryHomeScreen} />
-        <Drawer.Screen name="CustomerOrders" component={CustomerOrderScreen} />
-        <Drawer.Screen name="Orders" component={OrdersBakeryScreen} />
-        <Drawer.Screen name="Payment" component={PaymentScreen} />
-        <Drawer.Screen name="HomeScreen" component={HomeScreen} />
-        <Drawer.Screen name="Login" component={LoginScreen} />
-        <Drawer.Screen name="Cart">
-          {(props) => <CartScreen {...props} cart={cart}  setCart={setCart} />}
-        </Drawer.Screen>
-      </Drawer.Navigator>
-    </NavigationContainer>
-   
+            ),
+          }}
+        >
+          <Drawer.Screen name="Home" component={HomeScreen} />
+          <Drawer.Screen name="Login" component={LoginScreen} />
+          <Drawer.Screen name="Client Home">
+            {(props) => (
+              <ClientHomeScreen {...props} cart={cart} setCart={setCart} />
+            )}
+          </Drawer.Screen>
+          <Drawer.Screen name="Your Cart">
+            {(props) => <CartScreen {...props} cart={cart} setCart={setCart} />}
+          </Drawer.Screen>
+          <Drawer.Screen name="Order History" component={CustomerOrderScreen} />
+          <Drawer.Screen name="Payment" component={PaymentScreen} />
+          <Drawer.Screen name="Bakery Home" component={BakeryHomeScreen} />
+          <Drawer.Screen
+            name="Panadero Orders"
+            component={OrdersBakeryScreen}
+          />
+        </Drawer.Navigator>
+      </NavigationContainer>
+    </AuthProvider>
   );
 };
 
