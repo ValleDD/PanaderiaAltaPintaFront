@@ -12,6 +12,7 @@ import PaymentScreen from "../Component/PaymentScreen";
 import CartScreen from "../Component/CartScreen";
 import BakeryHomeScreen from "../Component/BakeyHomeScreen";
 import OrdersBakeryScreen from "../Component/OrdersEarringsScreen";
+import { AuthProvider } from "../Context/AuthContext";
 
 const Drawer = createDrawerNavigator();
 
@@ -47,7 +48,7 @@ const Screen = () => {
   };
 
   return (
-   
+   <AuthProvider>
     <NavigationContainer>
       <Drawer.Navigator
         initialRouteName="Home"
@@ -83,7 +84,7 @@ const Screen = () => {
         </Drawer.Screen>
       </Drawer.Navigator>
     </NavigationContainer>
-   
+    </AuthProvider>
   );
 };
 

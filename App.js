@@ -13,10 +13,9 @@ import Screen from './Services/Screen';
 const App = () => {
   return (
   
-      
-    <AuthProvider>
+  
     <Screen/>
-    </AuthProvider>
+    
       
   
       

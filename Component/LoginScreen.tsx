@@ -11,7 +11,7 @@ import {
   Alert,
 } from "react-native";
 import { useNavigation, NavigationProp, RouteProp } from '@react-navigation/native';
-import { ButtonGroup } from 'react-native-elements'; // Asegúrate de tener react-native-elements instalado
+import { ButtonGroup } from 'react-native-elements'; // Make sure you have react-native-elements installed
 import { useAuth } from "../Context/AuthContext";
 import axios from 'axios';
 
@@ -29,65 +29,54 @@ const LoginScreen: React.FC<{ route: LoginScreenRouteProp }> = ({ route }) => {
   const [correo_electronico, setCorreo_electronico] = useState<string>('');
   const [contrasena, setContrasena] = useState<string>('');
   const [nombre, setNombre] = useState<string>('');
-
- 
   const [bakeryDetails, setBakeryDetails] = useState<string>('');
   const [direccion, setDireccion] = useState<string>('');
   const [rol, setRol] = useState<boolean>(false);
   const [selectedIndex, setSelectedIndex] = useState<number>(1);
   const navigation = useNavigation<NavigationProp<any>>();
+  const [isRegister, setIsRegister] = useState<boolean>(false);
+  const [error, setError] = React.useState('');
 
   useEffect(() => {
     if (route.params?.isRegister) {
       setIsRegister(true);
-      setSelectedIndex(0); // Selecciona el botón de Registro
+      setSelectedIndex(0); // Select the Register button
     }
   }, [route.params?.isRegister]);
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post('/api/user/login', {
-        nombre,
-        correo_electronico,
-        contrasena,
-      });
-      login(response.data.token);
-      Alert.alert('Inicio de sesión exitoso');
-      navigation.navigate('clientHome'); // Navega a clientHome después de iniciar sesión
+      await login(correo_electronico, contrasena);
+      navigation.navigate('Home');
+      // Login successful, navigate to another page or perform necessary actions
     } catch (error) {
-      console.error('Error logging in:', error);
-      Alert.alert('Error al iniciar sesión', 'Revise sus credenciales e intente nuevamente');
+      setError(error.message);
     }
   };
 
   const handleRegister = async () => {
     try {
-        const userData = {
-            nombre,
-            correo,
-        };
-        const response = await fetch('URL_DEL_SERVIDOR/createUser', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(userData),
-        });
-        const responseData: ResponseData = await response.json();
-        if (response.ok) {
-            console.log(responseData.message);
-            // Manejar la respuesta exitosa según necesites
-        } else {
-            throw new Error(responseData.message);
-        }
+      const userData = {
+        nombre,
+        correo_electronico,
+        contrasena,
+        rol: selectedIndex === 1 ? 'baker' : 'user',
+        bakeryDetails: selectedIndex === 1 ? bakeryDetails : '',
+        direccion: selectedIndex === 0 ? direccion : '',
+      };
+      const response = await axios.post('http://192.168.1.38:3001/api/user/create', userData);
+      if (response.status === 201) {
+        Alert.alert('Registro exitoso', response.data.message);
+        setIsRegister(false);
+        setSelectedIndex(1);
+      } else {
+        throw new Error(response.data.message);
+      }
     } catch (error) {
-        console.error('Hubo un error al crear el usuario:', error);
-        setErrorMessage('Hubo un error al crear el usuario. Por favor, inténtalo de nuevo.');
+      console.error('Error registering user:', error);
+      Alert.alert('Hubo un error al crear el usuario. Por favor, inténtalo de nuevo.');
     }
-};
-  
-
-  const [isRegister, setIsRegister] = useState<boolean>(false);
+  };
 
   return (
     <ImageBackground
@@ -108,12 +97,13 @@ const LoginScreen: React.FC<{ route: LoginScreenRouteProp }> = ({ route }) => {
             buttons={["REGISTRO", "INICIO"]}
             selectedIndex={isRegister ? 0 : 1}
             onPress={(value) => {
+              setIsRegister(value === 0);
               setSelectedIndex(value);
             }}
             buttonStyle={styles.button}
-            selectedButtonStyle={styles.selectedButton} // Estilo para el botón seleccionado
+            selectedButtonStyle={styles.selectedButton} // Style for the selected button
             textStyle={styles.text}
-            selectedTextStyle={styles.selectedText} // Estilo para el texto del botón seleccionado
+            selectedTextStyle={styles.selectedText} // Style for the text of the selected button
           />
 
           {isRegister ? (
@@ -122,33 +112,33 @@ const LoginScreen: React.FC<{ route: LoginScreenRouteProp }> = ({ route }) => {
               <TextInput
                 style={styles.input}
                 placeholder="Nombre"
-                onChangeText={setName}
-                value={name}
+                onChangeText={setNombre}
+                value={nombre}
               />
               <TextInput
                 style={styles.input}
                 placeholder="Correo Electrónico"
-                onChangeText={setEmail}
-                value={email}
+                onChangeText={setCorreo_electronico}
+                value={correo_electronico}
                 keyboardType="email-address"
                 autoCapitalize="none"
               />
               <TextInput
                 style={styles.input}
                 placeholder="Contraseña"
-                onChangeText={setPassword}
-                value={password}
+                onChangeText={setContrasena}
+                value={contrasena}
                 secureTextEntry
               />
               <ButtonGroup
                 containerStyle={styles.buttonGroup}
                 buttons={["Usuario", "Panadero"]}
-                selectedIndex={isBaker ? 1 : 0}
+                selectedIndex={selectedIndex}
                 onPress={(value) => {
-                  setIsBaker(value === 1);
+                  setSelectedIndex(value);
                 }}
               />
-              {isBaker ? (
+              {selectedIndex === 1 ? (
                 <TextInput
                   style={styles.input}
                   placeholder="Detalles de la Panadería"
@@ -159,8 +149,8 @@ const LoginScreen: React.FC<{ route: LoginScreenRouteProp }> = ({ route }) => {
                 <TextInput
                   style={styles.input}
                   placeholder="Dirección"
-                  onChangeText={setAddress}
-                  value={address}
+                  onChangeText={setDireccion}
+                  value={direccion}
                 />
               )}
               <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
@@ -274,10 +264,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#7F5232',
   },
   text: {
-    color: 'black', // Color del texto de los botones no seleccionados
+    color: 'black', // Color of the text of unselected buttons
   },
   selectedText: {
-    color: 'white', // Color del texto del botón seleccionado
+    color: 'white', // Color of the text of the selected button
   },
   registerButton: {
     height: 40,
@@ -294,3 +284,4 @@ const styles = StyleSheet.create({
 });
 
 export default LoginScreen;
+
