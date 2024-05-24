@@ -18,7 +18,7 @@ const HomeScreen = () => {
   };
 
   const handleSignUp = () => {
-    navigation.navigate('Login', { isRegister: true });
+    navigation.navigate('Login');
   }
 
   if (!fontsLoaded) {

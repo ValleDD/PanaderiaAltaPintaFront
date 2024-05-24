@@ -20,6 +20,7 @@ const ClientHomeScreen = ({ navigation, cart = [], setCart }) => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [quantity, setQuantity] = useState(0);
+  const [productNotes, setProductNotes] = useState({}); // Estado para almacenar las notas de los productos
 
   useEffect(() => {
     if (selectedCategory === "Dulce" || selectedCategory === "Salado") {
@@ -46,21 +47,36 @@ const ClientHomeScreen = ({ navigation, cart = [], setCart }) => {
     }
   };
 
-  const handleAddToCart = () => {
-    if (selectedProduct) {
+  const handleAddToCart = async (product) => {
+    if (product) {
+      // Añadir el producto al carrito local
       const updatedCart = [...cart];
       const existingItemIndex = updatedCart.findIndex(
-        (cartItem) => cartItem.id === selectedProduct.id
+        (cartItem) => cartItem.id === product.id
       );
 
       if (existingItemIndex !== -1) {
         updatedCart[existingItemIndex].quantity += quantity;
       } else {
-        updatedCart.push({ ...selectedProduct, quantity });
+        updatedCart.push({ ...product, quantity });
       }
 
       setCart(updatedCart);
       setQuantity(0);
+
+      // Enviar la solicitud al servidor para crear el pedido
+      try {
+        const response = await axios.post("http://192.168.1.38:3001/api/pedido/create", {
+          productId: product.id,
+          quantity,
+          note: productNotes[product.id], // Incluye la nota del producto
+          // Otros datos relevantes del producto que puedas necesitar para el pedido
+        });
+
+        console.log("Pedido creado exitosamente:", response.data);
+      } catch (error) {
+        console.error("Error al crear el pedido:", error);
+      }
     }
   };
 
@@ -74,6 +90,10 @@ const ClientHomeScreen = ({ navigation, cart = [], setCart }) => {
     }
   };
 
+  const handleNoteChange = (productId, note) => {
+    setProductNotes({ ...productNotes, [productId]: note });
+  };
+
   const renderProductItem = ({ item }) => (
     <View style={styles.productContainer}>
       <Image
@@ -83,6 +103,12 @@ const ClientHomeScreen = ({ navigation, cart = [], setCart }) => {
       <View style={styles.productTextContainer}>
         <Text style={styles.productName}>{item.Nombre}</Text>
         <Text style={styles.productPrice}>{item.precio}</Text>
+        <TextInput
+          style={styles.noteInput}
+          placeholder="Añadir nota al producto..."
+          onChangeText={(note) => handleNoteChange(item.id, note)}
+          value={productNotes[item.id] || ""}
+        />
       </View>
       <View style={styles.actionsContainer}>
         <TouchableOpacity
@@ -102,7 +128,7 @@ const ClientHomeScreen = ({ navigation, cart = [], setCart }) => {
           style={styles.addButton}
           onPress={() => {
             setSelectedProduct(item);
-            handleAddToCart();
+            handleAddToCart(item);
           }}
         >
           <Text style={styles.addButtonLabel}>Añadir</Text>
@@ -126,7 +152,7 @@ const ClientHomeScreen = ({ navigation, cart = [], setCart }) => {
           />
         </View>
         <View style={styles.productOption}>
-          <TouchableOpacity onPress={() => setSelectedCategory("Dulce")}>
+                  <TouchableOpacity onPress={() => setSelectedCategory("Dulce")}>
             <Text
               style={[
                 styles.category,
@@ -221,6 +247,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "black",
   },
+  noteInput: {
+    height: 40,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginTop: 5,
+  },
   actionsContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -244,7 +278,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     backgroundColor: "#007bff",
-    color:"#fff",
+    color: "#fff",
     borderRadius: 5,
     marginLeft: 10,
   },
@@ -261,6 +295,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 10,
     backgroundColor: "white",
+    opacity: 0.8
   },
   viewCartButton: {
     padding: 15,

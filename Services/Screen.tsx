@@ -4,15 +4,16 @@ import { StyleSheet, Image, TouchableOpacity } from "react-native";
 import { DrawerNavigationOptions, createDrawerNavigator } from "@react-navigation/drawer";
 import { useNavigation } from '@react-navigation/native';
 
-import HomeScreen from "../Component/HomeScreen";
+
 import CustomerOrderScreen from "../Component/CustomerOrderScreen";
 import LoginScreen from "../Component/LoginScreen";
 import ClientHomeScreen from "../Component/ClientHomeScreen";
 import PaymentScreen from "../Component/PaymentScreen";
-import CartScreen from "../Component/CartScreen";
+import CartScreen from "../Component/BasketBuy";
 import BakeryHomeScreen from "../Component/BakeyHomeScreen";
-import OrdersBakeryScreen from "../Component/OrdersEarringsScreen";
+import OrdersBakeryScreen from "../Component/OrdersBakeryScreen";
 import { AuthProvider } from "../Context/AuthContext";
+import HomeScreen from "../Component/HomeScreen";
 
 const Drawer = createDrawerNavigator();
 
@@ -70,18 +71,23 @@ const Screen = () => {
           ),
         }}
       >
-        <Drawer.Screen name="Home">
+        <Drawer.Screen name="Principal" component={HomeScreen} />
+        <Drawer.Screen name="Login" component={LoginScreen} />
+        <Drawer.Screen name="Cliente">
           {(props) => <ClientHomeScreen {...props} cart={cart} setCart={setCart} />}
         </Drawer.Screen>
-        <Drawer.Screen name="Bakery" component={BakeryHomeScreen} />
-        <Drawer.Screen name="CustomerOrders" component={CustomerOrderScreen} />
-        <Drawer.Screen name="Orders" component={OrdersBakeryScreen} />
-        <Drawer.Screen name="Payment" component={PaymentScreen} />
-        <Drawer.Screen name="HomeScreen" component={HomeScreen} />
-        <Drawer.Screen name="Login" component={LoginScreen} />
-        <Drawer.Screen name="Cart">
+        <Drawer.Screen name="TuTalega">
           {(props) => <CartScreen {...props} cart={cart}  setCart={setCart} />}
         </Drawer.Screen>
+        <Drawer.Screen name="Historial Pedido" component={CustomerOrderScreen} />
+        <Drawer.Screen name="Pago" component={PaymentScreen} />
+        <Drawer.Screen name="Panadero Principal" component={BakeryHomeScreen} />
+       
+        <Drawer.Screen name="Panadero Pedido" component={OrdersBakeryScreen} />
+       
+       
+        
+        
       </Drawer.Navigator>
     </NavigationContainer>
     </AuthProvider>

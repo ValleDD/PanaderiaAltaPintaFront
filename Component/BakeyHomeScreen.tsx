@@ -123,12 +123,13 @@ const BakeryHomeScreen = () => {
           keyExtractor={(item) => item.id.toString()}
         />
         <Text style={styles.text1}>AÑADIR PRODUCTO</Text>
+        <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
           placeholder="Nombre del nuevo producto"
           onChangeText={setNewProductName}
           value={newProductName}
-          placeholderTextColor="white"
+          placeholderTextColor="black"
         />
         <TextInput
           style={styles.input}
@@ -136,29 +137,30 @@ const BakeryHomeScreen = () => {
           onChangeText={setNewProductPrice}
           value={newProductPrice}
           keyboardType="numeric"
-          placeholderTextColor="white"
+          placeholderTextColor="black"
         />
         <TextInput
           style={styles.input}
           placeholder="Descripción del nuevo producto"
           onChangeText={setNewProductDescription}
           value={newProductDescription}
-          placeholderTextColor="white"
+          placeholderTextColor="black"  
         />
         <TextInput
           style={styles.input}
           placeholder="Tipo del nuevo producto"
           onChangeText={setNewProductType}
           value={newProductType}
-          placeholderTextColor="white"
+          placeholderTextColor="black"
         />
         <TextInput
           style={styles.input}
           placeholder="URL de la imagen del nuevo producto"
           onChangeText={setNewProductImagenURL}
           value={newProductImagenURL}
-          placeholderTextColor="white"
+          placeholderTextColor="black"
         />
+        </View>
         <TouchableOpacity style={styles.button} onPress={handleAddProduct}>
           <Text style={[styles.buttonText, { color: "white" }]}>
             Agregar Producto
@@ -199,10 +201,17 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingHorizontal: 10,
     marginBottom: 10,
-    color: "white",
+    color: "black",
+  },
+  inputContainer: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 10,
+    color: 'black',
   },
   button: {
-    backgroundColor: "blue",
+    backgroundColor: '#7F5232',
     padding: 10,
     borderRadius: 5,
     alignItems: "center",

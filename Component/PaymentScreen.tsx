@@ -14,7 +14,7 @@ const PaymentScreen = () => {
       "Pago Aceptado",
       "Su pago ha sido procesado con éxito",
       [
-        { text: "OK", onPress: () => navigation.navigate('Home') }
+        { text: "OK", onPress: () => navigation.navigate('Cliente') }
       ]
     );
   };
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     width: 350,
     height: 50,
     fontSize: 20,
-    color: 'white'
+    color: 'black'
   },
   button: {
     backgroundColor: '#ff6600',
