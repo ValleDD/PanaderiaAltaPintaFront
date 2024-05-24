@@ -48,7 +48,7 @@ const LoginScreen: React.FC<{ route: LoginScreenRouteProp }> = ({ route }) => {
     try {
       await login(correo_electronico, contrasena);
       navigation.navigate('Home');
-      // Login successful, navigate to another page or perform necessary actions
+    
     } catch (error) {
       setError(error.message);
     }
@@ -60,7 +60,7 @@ const LoginScreen: React.FC<{ route: LoginScreenRouteProp }> = ({ route }) => {
         nombre,
         correo_electronico,
         contrasena,
-        rol: selectedIndex === 1 ? 'baker' : 'user',
+        rol: selectedIndex === 1 ? 'panadero ' : 'cliente',
         bakeryDetails: selectedIndex === 1 ? bakeryDetails : '',
         direccion: selectedIndex === 0 ? direccion : '',
       };
@@ -77,6 +77,7 @@ const LoginScreen: React.FC<{ route: LoginScreenRouteProp }> = ({ route }) => {
       Alert.alert('Hubo un error al crear el usuario. Por favor, inténtalo de nuevo.');
     }
   };
+  
 
   return (
     <ImageBackground
