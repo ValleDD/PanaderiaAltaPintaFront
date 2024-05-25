@@ -45,8 +45,7 @@ const BakeryHomeScreen = () => {
       newProductName &&
       newProductPrice &&
       newProductDescription &&
-      newProductType &&
-      newProductImagenURL
+      newProductType
     ) {
       try {
         const response = await fetch(
@@ -61,8 +60,7 @@ const BakeryHomeScreen = () => {
               descripcion: newProductDescription,
               precio: parseFloat(newProductPrice),
               tipo: newProductType,
-              idUsuario: "1",
-              imagenURL: newProductImagenURL,
+              idUsuario: "1"
             }),
           }
         );
@@ -83,31 +81,33 @@ const BakeryHomeScreen = () => {
         console.error("Error al agregar producto:", error);
       }
     }
-  };
-  // Handle removing a product
-  const handleRemoveProduct = async (productId) => {
-    try {
-      const response = await fetch(
-        `http://192.168.1.38:3001/api/product/delete/${productId}`,
-        {
-          method: "DELETE",
-        }
-      );
+};
 
-      const data = await response.json();
-      if (response.ok) {
-        const updatedProducts = products.filter(
-          (product) => product.id !== productId
-        );
-        setProducts(updatedProducts);
-        console.log(data.message);
-      } else {
-        console.error(data.message);
+// Handle removing a product
+const handleRemoveProduct = async (productId) => {
+  try {
+    const response = await fetch(
+      `http://192.168.1.38:3001/api/product/delete/${productId}`,
+      {
+        method: "DELETE",
       }
-    } catch (error) {
-      console.error("Error al eliminar el producto:", error);
+    );
+
+    if (response.ok) {
+      const updatedProducts = products.filter(
+        (product) => product.id !== productId
+      );
+      setProducts(updatedProducts);
+      console.log("Product deleted successfully");
+    } else {
+      const errorMessage = await response.json();
+      console.error(errorMessage.message);
     }
-  };
+  } catch (error) {
+    console.error("Error al eliminar el producto:", error);
+  }
+};
+
 
   return (
     <ImageBackground

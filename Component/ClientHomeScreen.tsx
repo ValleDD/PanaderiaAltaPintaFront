@@ -19,6 +19,9 @@ const ClientHomeScreen = ({ navigation }) => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [quantity, setQuantity] = useState(0);
   const [productNotes, setProductNotes] = useState({});
+  const [cartItemCount, setCartItemCount] = useState(0); // Estado para mantener el recuento de productos en el carrito
+
+  
 
   useEffect(() => {
     fetchProductsByCategory(selectedCategory);
@@ -26,7 +29,7 @@ const ClientHomeScreen = ({ navigation }) => {
 
   const fetchProductsByCategory = async (category) => {
     try {
-      if(!category){
+      if (!category) {
         console.error("Category is empty!");
       }
       const response = await axios.get(
@@ -45,6 +48,8 @@ const ClientHomeScreen = ({ navigation }) => {
 
   const handleAddToCart = async (product) => {
     // Add your logic to add product to cart
+    setCartItemCount(cartItemCount + quantity); // Incrementa el recuento total de productos en el carrito
+    setQuantity(0); // Reinicia la cantidad a 0 después de agregar al carrito
   };
 
   const handleIncrementQuantity = () => {
@@ -72,7 +77,7 @@ const ClientHomeScreen = ({ navigation }) => {
         <Text style={styles.productPrice}>{item.precio}€</Text>
         <TextInput
           style={styles.noteInput}
-          placeholder="Nota prodcuto..."
+          placeholder="Nota producto..."
           onChangeText={(note) => handleNoteChange(item.id, note)}
           value={productNotes[item.id] || ""}
         />
@@ -100,10 +105,10 @@ const ClientHomeScreen = ({ navigation }) => {
       </View>
     </View>
   );
-  
 
   const handleViewCartPress = () => {
     navigation.navigate("Your Cart");
+    setCartItemCount(0); // Restablecer el contador del carrito a cero
   };
 
   return (
@@ -159,7 +164,9 @@ const ClientHomeScreen = ({ navigation }) => {
           style={styles.viewCartButton}
           onPress={handleViewCartPress}
         >
-          <Text style={styles.viewCartButtonText}>Carrito</Text>
+          <Text style={styles.viewCartButtonText}>
+            Carrito ({cartItemCount}) {/* Mostrar la cantidad de productos en el carrito */}
+          </Text>
         </TouchableOpacity>
       </View>
     </ImageBackground>
