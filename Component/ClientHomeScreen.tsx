@@ -12,26 +12,23 @@ import {
 import axios from "axios";
 const defaultProductImage = require("../assets/producto1.jpg");
 
-const ClientHomeScreen = ({ navigation, cart = [], setCart }) => {
-  // State variables to manage product data, search query, selected category, selected product, quantity, and product notes
+const ClientHomeScreen = ({ navigation }) => {
   const [sweets, setSweets] = useState([]);
   const [salty, setSalty] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedProduct, setSelectedProduct] = useState(null);
   const [quantity, setQuantity] = useState(0);
-  const [productNotes, setProductNotes] = useState({}); // State to store product notes
+  const [productNotes, setProductNotes] = useState({});
 
-  // Fetch products based on the selected category
   useEffect(() => {
-    if (selectedCategory === "Dulce" || selectedCategory === "Salado") {
-      fetchProductsByCategory(selectedCategory);
-    }
+    fetchProductsByCategory(selectedCategory);
   }, [selectedCategory]);
 
-  // Fetch products from the server based on category
   const fetchProductsByCategory = async (category) => {
     try {
+      if(!category){
+        console.error("Category is empty!");
+      }
       const response = await axios.get(
         `http://192.168.1.38:3001/api/product/${category}`
       );
@@ -46,59 +43,24 @@ const ClientHomeScreen = ({ navigation, cart = [], setCart }) => {
     }
   };
 
-  // Add product to cart and send request to server to create the order
   const handleAddToCart = async (product) => {
-    if (product) {
-      const updatedCart = [...cart];
-      const existingItemIndex = updatedCart.findIndex(
-        (cartItem) => cartItem.id === product.id
-      );
-
-      if (existingItemIndex !== -1) {
-        updatedCart[existingItemIndex].quantity += quantity;
-      } else {
-        updatedCart.push({ ...product, quantity });
-      }
-
-      setCart(updatedCart);
-      setQuantity(0);
-
-      try {
-        const response = await axios.post(
-          "http://192.168.1.38:3001/api/pedido/create",
-          {
-            productId: product.id,
-            quantity,
-            note: productNotes[product.id], // Include product note
-            // Other relevant product data you may need for the order
-          }
-        );
-
-        console.log("Order created successfully:", response.data);
-      } catch (error) {
-        console.error("Error creating order:", error);
-      }
-    }
+    // Add your logic to add product to cart
   };
 
-  // Increment product quantity
   const handleIncrementQuantity = () => {
     setQuantity(quantity + 1);
   };
 
-  // Decrement product quantity
   const handleDecrementQuantity = () => {
     if (quantity > 0) {
       setQuantity(quantity - 1);
     }
   };
 
-  // Handle product note change
   const handleNoteChange = (productId, note) => {
     setProductNotes({ ...productNotes, [productId]: note });
   };
 
-  // Render individual product item
   const renderProductItem = ({ item }) => (
     <View style={styles.productContainer}>
       <Image
@@ -107,10 +69,10 @@ const ClientHomeScreen = ({ navigation, cart = [], setCart }) => {
       />
       <View style={styles.productTextContainer}>
         <Text style={styles.productName}>{item.Nombre}</Text>
-        <Text style={styles.productPrice}>{item.precio}</Text>
+        <Text style={styles.productPrice}>{item.precio}€</Text>
         <TextInput
           style={styles.noteInput}
-          placeholder="Add note to product..."
+          placeholder="Nota prodcuto..."
           onChangeText={(note) => handleNoteChange(item.id, note)}
           value={productNotes[item.id] || ""}
         />
@@ -131,16 +93,18 @@ const ClientHomeScreen = ({ navigation, cart = [], setCart }) => {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.addButton}
-          onPress={() => {
-            setSelectedProduct(item);
-            handleAddToCart(item);
-          }}
+          onPress={() => handleAddToCart(item)}
         >
-          <Text style={styles.addButtonLabel}>Add</Text>
+          <Text style={styles.addButtonLabel}>Añadir</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
+  
+
+  const handleViewCartPress = () => {
+    navigation.navigate("Your Cart");
+  };
 
   return (
     <ImageBackground
@@ -148,17 +112,15 @@ const ClientHomeScreen = ({ navigation, cart = [], setCart }) => {
       style={styles.backgroundImage}
     >
       <View style={styles.container}>
-        {/* Search bar */}
         <View style={styles.searchBarContainer}>
           <TextInput
             style={styles.searchBar}
-            placeholder="Search products..."
+            placeholder="Buscar producto..."
             onChangeText={setSearchQuery}
             value={searchQuery}
           />
         </View>
 
-        {/* Product category selection */}
         <View style={styles.productOption}>
           <TouchableOpacity onPress={() => setSelectedCategory("Dulce")}>
             <Text
@@ -182,7 +144,6 @@ const ClientHomeScreen = ({ navigation, cart = [], setCart }) => {
           </TouchableOpacity>
         </View>
 
-        {/* Product list */}
         <FlatList
           style={styles.flatlist}
           data={selectedCategory === "Dulce" ? sweets : salty}
@@ -194,14 +155,11 @@ const ClientHomeScreen = ({ navigation, cart = [], setCart }) => {
           ItemSeparatorComponent={() => <View style={styles.separator} />}
         />
 
-        {/* View cart button */}
         <TouchableOpacity
           style={styles.viewCartButton}
-          onPress={() => navigation.navigate("Cart")}
+          onPress={handleViewCartPress}
         >
-          <Text style={styles.viewCartButtonText}>
-            View Cart ({cart.reduce((total, item) => total + item.quantity, 0)})
-          </Text>
+          <Text style={styles.viewCartButtonText}>Carrito</Text>
         </TouchableOpacity>
       </View>
     </ImageBackground>
@@ -232,33 +190,11 @@ const styles = StyleSheet.create({
   productList: {
     paddingHorizontal: 10,
   },
-  productContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-  },
-  productImage: {
-    width: 100,
-    height: 100,
-    resizeMode: "cover",
-    borderRadius: 5,
-  },
   productTextContainer: {
     flex: 1,
     marginLeft: 10,
   },
-  productName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 5,
-    color: "black",
-  },
-  productPrice: {
-    fontSize: 14,
-    color: "black",
-  },
+
   noteInput: {
     height: 40,
     borderWidth: 1,
@@ -286,18 +222,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     fontSize: 16,
   },
-  addButton: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    backgroundColor: "#007bff",
-    color: "#fff",
-    borderRadius: 5,
-    marginLeft: 10,
-  },
-  addButtonLabel: {
-    color: "#fff",
-    fontSize: 16,
-  },
+
   backgroundImage: {
     width: "100%",
     height: "100%",
@@ -341,6 +266,53 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: "#eee",
     marginVertical: 5,
+  },
+  // Estilos actualizados para el producto
+  productContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+    backgroundColor: "#fff", // Nuevo fondo blanco
+    borderRadius: 10, // Bordes redondeados
+    shadowColor: "#000", // Sombra
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  productImage: {
+    width: 100,
+    height: 100,
+    resizeMode: "cover",
+    borderRadius: 10, // Bordes redondeados
+    marginRight: 10, // Margen a la derecha para separar la imagen del texto
+  },
+  productName: {
+    fontSize: 18, // Tamaño del texto aumentado
+    fontWeight: "bold",
+    marginBottom: 2,
+    color: "black",
+  },
+  productPrice: {
+    fontSize: 16, // Tamaño del texto aumentado
+    color: "#888", // Color de texto más suave
+  },
+  // Estilos actualizados para el botón de añadir al carrito
+  addButton: {
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    backgroundColor: "#007bff",
+    borderRadius: 20, // Bordes más redondeados
+  },
+  addButtonLabel: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 
