@@ -16,12 +16,10 @@ const ClientHomeScreen = ({ navigation }) => {
   const [sweets, setSweets] = useState([]);
   const [salty, setSalty] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("Dulce"); // Establece "Dulce" como categoría por defecto
   const [quantity, setQuantity] = useState(0);
   const [productNotes, setProductNotes] = useState({});
-  const [cartItemCount, setCartItemCount] = useState(0); // Estado para mantener el recuento de productos en el carrito
-
-  
+  const [cartItemCount, setCartItemCount] = useState(0);
 
   useEffect(() => {
     fetchProductsByCategory(selectedCategory);
@@ -165,7 +163,8 @@ const ClientHomeScreen = ({ navigation }) => {
           onPress={handleViewCartPress}
         >
           <Text style={styles.viewCartButtonText}>
-            Carrito ({cartItemCount}) {/* Mostrar la cantidad de productos en el carrito */}
+            Carrito ({cartItemCount}){" "}
+            {/* Mostrar la cantidad de productos en el carrito */}
           </Text>
         </TouchableOpacity>
       </View>

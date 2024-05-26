@@ -19,11 +19,11 @@ const HomeScreen = () => {
   const navigation = useNavigation();
 
   const handleLogin = (userType) => {
-    navigation.navigate("Login"); // Asegúrate de que esta ruta esté configurada en tu sistema de navegación
+    navigation.navigate("Login"); 
   };
 
   const handleSignUp = () => {
-    navigation.navigate("Login"); // Asegúrate de que esta ruta esté configurada en tu sistema de navegación
+    navigation.navigate("Login"); 
   };
 
   if (!fontsLoaded) {
