@@ -1,4 +1,3 @@
-// Importing necessary modules from React Native
 import React, { useState } from "react";
 import {
   View,
@@ -8,48 +7,37 @@ import {
   StyleSheet,
   Image,
 } from "react-native";
-// Importing fonts and navigation hook from external libraries
 import { useFonts } from "expo-font";
 import { useNavigation } from "@react-navigation/native";
 
-// Functional component for the Home Screen
 const HomeScreen = () => {
-  // State to manage the loading of fonts
   const [fontsLoaded] = useFonts({
     dancing: require("../assets/font/DancingScript-Regular.ttf"),
     bella: require("../assets/font/LaBelleAurore-Regular.ttf"),
   });
 
-  // Hook to access navigation object
   const navigation = useNavigation();
 
-  // Function to handle login based on user type
   const handleLogin = (userType) => {
-    navigation.navigate("Login");
+    navigation.navigate("Login"); // Asegúrate de que esta ruta esté configurada en tu sistema de navegación
   };
 
-  // Function to handle sign up navigation
   const handleSignUp = () => {
-    navigation.navigate("Login");
+    navigation.navigate("Login"); // Asegúrate de que esta ruta esté configurada en tu sistema de navegación
   };
 
-  // If fonts are not loaded yet, return null
   if (!fontsLoaded) {
     return null;
   }
 
-  // Render UI
   return (
     <ImageBackground
       source={require("../assets/fondo2.jpg")}
       style={styles.backgroundImage}
     >
       <View style={styles.container}>
-        {/* Logo */}
         <Image source={require("../assets/PANADERO.png")} style={styles.logo} />
-        {/* Title */}
         <Text style={styles.title}>¡Bienvenidos a Panadería Alta Pinta!</Text>
-        {/* Description */}
         <Text style={styles.title1}>
           Sumérgete en el encanto de la tradición y el sabor auténtico en
           nuestra panadería artesanal. Horneamos panes con esmero y pasión según
@@ -57,21 +45,18 @@ const HomeScreen = () => {
           panaderos, verdaderos artesanos del oficio, cultivan la magia de la
           masa madre para ofrecerte panes con un sabor rústico y único.
         </Text>
-        {/* Button to login as a customer */}
         <TouchableOpacity
           style={styles.button}
           onPress={() => handleLogin("Cliente")}
         >
           <Text style={styles.buttonText}>Iniciar Sesión como Cliente</Text>
         </TouchableOpacity>
-        {/* Button to login as a baker */}
         <TouchableOpacity
           style={styles.button}
           onPress={() => handleLogin("Panadero")}
         >
           <Text style={styles.buttonText}>Iniciar Sesión como Panadero</Text>
         </TouchableOpacity>
-        {/* Link to sign up */}
         <TouchableOpacity onPress={handleSignUp}>
           <Text style={styles.signUpText}>
             ¿Nuevo usuario? Registrarse aquí
@@ -82,7 +67,6 @@ const HomeScreen = () => {
   );
 };
 
-// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -138,5 +122,4 @@ const styles = StyleSheet.create({
   },
 });
 
-// Exporting the component as default
 export default HomeScreen;
