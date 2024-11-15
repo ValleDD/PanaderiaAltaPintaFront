@@ -1,26 +1,28 @@
 import React, { useState } from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import { StyleSheet, Image, TouchableOpacity } from "react-native";
+import { NavigationContainer, useNavigation } from "@react-navigation/native";
+import { StyleSheet, Image, TouchableOpacity, Text } from "react-native";
 import {
   DrawerNavigationOptions,
   createDrawerNavigator,
 } from "@react-navigation/drawer";
-import { useNavigation } from "@react-navigation/native";
 
 import CustomerOrderScreen from "../Component/CustomerOrderScreen";
 import LoginScreen from "../Component/LoginScreen";
 import ClientHomeScreen from "../Component/ClientHomeScreen";
 import PaymentScreen from "../Component/PaymentScreen";
-import CartScreen from "../Component/BasketBuy";
-import BakeryHomeScreen from "../Component/BakeyHomeScreen";
+import BasketBuyScreen from "../Component/BasketBuyScreen";
 import OrdersBakeryScreen from "../Component/OrdersBakeryScreen";
-import { AuthProvider } from "../Context/AuthContext";
+import { useAuth } from "../Context/AuthContext";
 import HomeScreen from "../Component/HomeScreen";
+import BakeryHomeScreen from "../Component/BakeyHomeScreen";
+
 
 const Drawer = createDrawerNavigator();
 
 const Screen = () => {
-  const [cart, setCart] = useState([]);
+  const { auth, logout } = useAuth();
+  const [cart, setCart] = useState<any[]>([]);
+  const navigation = useNavigation(); // Obtener el objeto de navegación
 
   // Drawer navigation options
   const drawerNavigatorScreenOptions: DrawerNavigationOptions = {
@@ -42,60 +44,59 @@ const Screen = () => {
 
   // Function to handle logo press
   const handleLogoPress = () => {
-    console.log("Logo pressed");
+    logout();
+
   };
 
   // Function to handle cart press
   const handleCartPress = () => {
-    // Your original error was because handleCartPress didn't have access to navigation
-    // One solution is to use the useNavigation hook to get navigation
-    const navigation = useNavigation(); // Import the useNavigation hook
-    navigation.navigate("Cart");
+    navigation.navigate("Your Cart");
   };
 
   return (
-    <AuthProvider>
-      <NavigationContainer>
-        <Drawer.Navigator
-          initialRouteName="Home"
-          screenOptions={{
-            ...drawerNavigatorScreenOptions,
-            headerRight: () => (
-              <TouchableOpacity onPress={handleCartPress}>
+  
+      <Drawer.Navigator
+        initialRouteName="Home"
+        screenOptions={{
+          ...drawerNavigatorScreenOptions,
+          headerRight: () => (
+            <TouchableOpacity onPress={handleCartPress}>
+              <Text>
                 <Image
                   style={styles.ImgCarrito}
                   source={require("../assets/carro.png")}
                 />
-              </TouchableOpacity>
-            ),
-            headerTitle: () => (
+              </Text>
+            </TouchableOpacity>
+          ),
+          headerTitle: () => (
+            <TouchableOpacity onPress={handleLogoPress}>
               <Image
                 style={styles.ImgLogo}
                 source={require("../assets/PANADERO.png")}
               />
-            ),
-          }}
-        >
-          <Drawer.Screen name="Home" component={HomeScreen} />
-          <Drawer.Screen name="Login" component={LoginScreen} />
-          <Drawer.Screen name="Client Home">
-            {(props) => (
-              <ClientHomeScreen {...props} cart={cart} setCart={setCart} />
-            )}
-          </Drawer.Screen>
-          <Drawer.Screen name="Your Cart">
-            {(props) => <CartScreen {...props} cart={cart} setCart={setCart} />}
-          </Drawer.Screen>
-          <Drawer.Screen name="Order History" component={CustomerOrderScreen} />
-          <Drawer.Screen name="Payment" component={PaymentScreen} />
-          <Drawer.Screen name="Bakery Home" component={BakeryHomeScreen} />
-          <Drawer.Screen
-            name="Panadero Orders"
-            component={OrdersBakeryScreen}
-          />
-        </Drawer.Navigator>
-      </NavigationContainer>
-    </AuthProvider>
+            </TouchableOpacity>
+          ),
+        }}
+      >
+        {auth ? (
+          <>
+            <Drawer.Screen name="Client Home" component={ClientHomeScreen} />
+            <Drawer.Screen name="Your Cart" component={BasketBuyScreen} />
+            <Drawer.Screen name="Order History" component={CustomerOrderScreen} />
+            <Drawer.Screen name="Payment" component={PaymentScreen} />
+            <Drawer.Screen name="Bakery Home" component={BakeryHomeScreen} />
+            <Drawer.Screen name="Panadero Orders" component={OrdersBakeryScreen} />
+          </>
+        ) : (
+          <>
+            <Drawer.Screen name="Home" component={HomeScreen} />
+            <Drawer.Screen name="Login" component={LoginScreen} />
+          
+          </>
+        )}
+      </Drawer.Navigator>
+    
   );
 };
 

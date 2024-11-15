@@ -10,109 +10,96 @@ import {
   ImageBackground,
 } from "react-native";
 import axios from "axios";
+
 const defaultProductImage = require("../assets/producto1.jpg");
 
-const ClientHomeScreen = ({ navigation, cart = [], setCart }) => {
-  // State variables to manage product data, search query, selected category, selected product, quantity, and product notes
+const ClientHomeScreen = ({ navigation }) => {
   const [sweets, setSweets] = useState([]);
   const [salty, setSalty] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState("dulce"); // Categoría por defecto
   const [quantity, setQuantity] = useState(0);
-  const [productNotes, setProductNotes] = useState({}); // State to store product notes
+  const [productNotes, setProductNotes] = useState({});
+  const [cartItems, setCartItems] = useState([]); // Cambiado para manejar los productos en el carrito
 
-  // Fetch products based on the selected category
+  // Fetch products when the selected category changes
   useEffect(() => {
-    if (selectedCategory === "Dulce" || selectedCategory === "Salado") {
-      fetchProductsByCategory(selectedCategory);
-    }
+    fetchProductsByCategory(selectedCategory);
   }, [selectedCategory]);
 
-  // Fetch products from the server based on category
   const fetchProductsByCategory = async (category) => {
     try {
       const response = await axios.get(
         `http://192.168.1.38:3001/api/product/${category}`
       );
       const data = response.data;
-      if (category === "Dulce") {
-        setSweets(data);
-      } else if (category === "Salado") {
-        setSalty(data);
+
+      // Check if data is valid and set state accordingly
+      if (Array.isArray(data)) {
+        if (category === "dulce") {
+          setSweets(data);
+        } else if (category === "salado") {
+          setSalty(data);
+        }
+      } else {
+        console.error(`Unexpected data format for "${category}":`, data);
       }
     } catch (error) {
       console.error(`Error fetching "${category}" products:`, error);
     }
   };
 
-  // Add product to cart and send request to server to create the order
-  const handleAddToCart = async (product) => {
-    if (product) {
-      const updatedCart = [...cart];
-      const existingItemIndex = updatedCart.findIndex(
-        (cartItem) => cartItem.id === product.id
-      );
+  const handleAddToCart = (product) => {
+    if (quantity > 0) {
+      // Crear una copia del carrito
+      const newCartItems = [...cartItems];
+      const existingItemIndex = newCartItems.findIndex(item => item.idProducto === product.idProducto);
 
       if (existingItemIndex !== -1) {
-        updatedCart[existingItemIndex].quantity += quantity;
+        // Si el producto ya existe en el carrito, incrementar la cantidad
+        newCartItems[existingItemIndex].cantidad += quantity;
       } else {
-        updatedCart.push({ ...product, quantity });
+        // Si no existe, agregar el producto al carrito
+        newCartItems.push({
+          ...product,
+          cantidad: quantity,
+          nota: productNotes[product.idProducto] || "", // Añadir nota si existe
+        });
       }
 
-      setCart(updatedCart);
-      setQuantity(0);
-
-      try {
-        const response = await axios.post(
-          "http://192.168.1.38:3001/api/pedido/create",
-          {
-            productId: product.id,
-            quantity,
-            note: productNotes[product.id], // Include product note
-            // Other relevant product data you may need for the order
-          }
-        );
-
-        console.log("Order created successfully:", response.data);
-      } catch (error) {
-        console.error("Error creating order:", error);
-      }
+      setCartItems(newCartItems); // Actualizar el carrito
+      setQuantity(0); // Reiniciar la cantidad después de agregar al carrito
     }
   };
 
-  // Increment product quantity
   const handleIncrementQuantity = () => {
     setQuantity(quantity + 1);
   };
 
-  // Decrement product quantity
   const handleDecrementQuantity = () => {
     if (quantity > 0) {
       setQuantity(quantity - 1);
     }
   };
 
-  // Handle product note change
   const handleNoteChange = (productId, note) => {
-    setProductNotes({ ...productNotes, [productId]: note });
+    setProductNotes((prevNotes) => ({ ...prevNotes, [productId]: note }));
   };
 
-  // Render individual product item
   const renderProductItem = ({ item }) => (
     <View style={styles.productContainer}>
       <Image
-        source={item.imagenURL ? { uri: item.imagenURL } : defaultProductImage}
+        source={item.imagenUrl ? { uri: item.imagenUrl } : defaultProductImage}
         style={styles.productImage}
       />
       <View style={styles.productTextContainer}>
-        <Text style={styles.productName}>{item.Nombre}</Text>
-        <Text style={styles.productPrice}>{item.precio}</Text>
+        <Text style={styles.productName}>{item.nombre}</Text>
+        <Text style={styles.productPrice}>{item.precio}€</Text>
         <TextInput
           style={styles.noteInput}
-          placeholder="Add note to product..."
-          onChangeText={(note) => handleNoteChange(item.id, note)}
-          value={productNotes[item.id] || ""}
+          placeholder="Nota producto..."
+          onChangeText={(note) => handleNoteChange(item.idProducto, note)}
+          value={productNotes[item.idProducto] || ""}
         />
       </View>
       <View style={styles.actionsContainer}>
@@ -131,16 +118,19 @@ const ClientHomeScreen = ({ navigation, cart = [], setCart }) => {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.addButton}
-          onPress={() => {
-            setSelectedProduct(item);
-            handleAddToCart(item);
-          }}
+          onPress={() => handleAddToCart(item)}
         >
-          <Text style={styles.addButtonLabel}>Add</Text>
+          <Text style={styles.addButtonLabel}>Añadir</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
+
+  const handleViewCartPress = () => {
+    navigation.navigate("Your Cart", {
+      cartItems: cartItems, // Enviar productos del carrito
+    });
+  };
 
   return (
     <ImageBackground
@@ -148,33 +138,31 @@ const ClientHomeScreen = ({ navigation, cart = [], setCart }) => {
       style={styles.backgroundImage}
     >
       <View style={styles.container}>
-        {/* Search bar */}
         <View style={styles.searchBarContainer}>
           <TextInput
             style={styles.searchBar}
-            placeholder="Search products..."
+            placeholder="Buscar producto..."
             onChangeText={setSearchQuery}
             value={searchQuery}
           />
         </View>
 
-        {/* Product category selection */}
         <View style={styles.productOption}>
-          <TouchableOpacity onPress={() => setSelectedCategory("Dulce")}>
+          <TouchableOpacity onPress={() => setSelectedCategory("dulce")}>
             <Text
               style={[
                 styles.category,
-                selectedCategory === "Dulce" && styles.selectedCategory,
+                selectedCategory === "dulce" && styles.selectedCategory,
               ]}
             >
               Dulce
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => setSelectedCategory("Salado")}>
+          <TouchableOpacity onPress={() => setSelectedCategory("salado")}>
             <Text
               style={[
                 styles.category,
-                selectedCategory === "Salado" && styles.selectedCategory,
+                selectedCategory === "salado" && styles.selectedCategory,
               ]}
             >
               Salado
@@ -182,25 +170,23 @@ const ClientHomeScreen = ({ navigation, cart = [], setCart }) => {
           </TouchableOpacity>
         </View>
 
-        {/* Product list */}
         <FlatList
           style={styles.flatlist}
-          data={selectedCategory === "Dulce" ? sweets : salty}
+          data={selectedCategory === "dulce" ? sweets : salty}
           renderItem={renderProductItem}
           keyExtractor={(item, index) =>
-            item.id ? item.id.toString() : index.toString()
+            item.idProducto ? item.idProducto.toString() : index.toString()
           }
           contentContainerStyle={styles.productList}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
         />
 
-        {/* View cart button */}
         <TouchableOpacity
           style={styles.viewCartButton}
-          onPress={() => navigation.navigate("Cart")}
+          onPress={handleViewCartPress}
         >
           <Text style={styles.viewCartButtonText}>
-            View Cart ({cart.reduce((total, item) => total + item.quantity, 0)})
+            Carrito ({cartItems.reduce((total, item) => total + item.cantidad, 0)}) {/* Mostrar la cantidad total en el carrito */}
           </Text>
         </TouchableOpacity>
       </View>
@@ -232,32 +218,9 @@ const styles = StyleSheet.create({
   productList: {
     paddingHorizontal: 10,
   },
-  productContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-  },
-  productImage: {
-    width: 100,
-    height: 100,
-    resizeMode: "cover",
-    borderRadius: 5,
-  },
   productTextContainer: {
     flex: 1,
     marginLeft: 10,
-  },
-  productName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 5,
-    color: "black",
-  },
-  productPrice: {
-    fontSize: 14,
-    color: "black",
   },
   noteInput: {
     height: 40,
@@ -284,18 +247,6 @@ const styles = StyleSheet.create({
   },
   quantityText: {
     marginHorizontal: 10,
-    fontSize: 16,
-  },
-  addButton: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    backgroundColor: "#007bff",
-    color: "#fff",
-    borderRadius: 5,
-    marginLeft: 10,
-  },
-  addButtonLabel: {
-    color: "#fff",
     fontSize: 16,
   },
   backgroundImage: {
@@ -341,6 +292,48 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: "#eee",
     marginVertical: 5,
+  },
+  productContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  productImage: {
+    width: 100,
+    height: 100,
+    resizeMode: "cover",
+    borderRadius: 10,
+    marginRight: 10,
+  },
+  productName: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  productPrice: {
+    fontSize: 16,
+    color: "green",
+  },
+  addButton: {
+    backgroundColor: "#fa560b",
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+  },
+  addButtonLabel: {
+    color: "white",
+    fontWeight: "bold",
   },
 });
 

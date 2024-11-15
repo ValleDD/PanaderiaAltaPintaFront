@@ -26,7 +26,7 @@ const CustomerOrderScreen = ({ navigation }) => {
     // Log the order being redone
     console.log(`Rehaciendo pedido: ${pedido.producto}`);
     // Redirect to the cart screen
-    navigation.navigate('Cart');
+    navigation.navigate('Your Cart');
   };
 
   // Render UI
@@ -56,7 +56,7 @@ const CustomerOrderScreen = ({ navigation }) => {
         />
         
         {/* Button to navigate to the home screen */}
-        <TouchableOpacity style={styles.homeButton} onPress={() => navigation.navigate("Home")}>
+        <TouchableOpacity style={styles.homeButton} onPress={() => navigation.navigate("Client Home")}>
           <Text style={styles.homeButtonText}>Ir a Home</Text>
         </TouchableOpacity>
       </View>

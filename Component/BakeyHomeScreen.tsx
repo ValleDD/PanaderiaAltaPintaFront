@@ -2,55 +2,55 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   FlatList,
   StyleSheet,
   ImageBackground,
+  TextInput,
+  Image,
 } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 
-const BakeryHomeScreen = () => {
-  // State variables to manage product data and form inputs
-  const [products, setProducts] = useState([]);
-  const [newProductName, setNewProductName] = useState("");
-  const [newProductPrice, setNewProductPrice] = useState("");
-  const [newProductDescription, setNewProductDescription] = useState("");
-  const [newProductType, setNewProductType] = useState("");
-  const [newProductImagenURL, setNewProductImagenURL] = useState("");
+const BakeryHomeScreen: React.FC = () => {
+  const [products, setProducts] = useState<any[]>([]);
+  const [newProductName, setNewProductName] = useState<string>("");
+  const [newProductPrice, setNewProductPrice] = useState<string>("");
+  const [newProductDescription, setNewProductDescription] =
+    useState<string>("");
+  const [newProductType, setNewProductType] = useState<string>("");
+  const [image, setImage] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProducts();
   }, []);
-  // Fetch products when component mounts
+
   const fetchProducts = async () => {
     try {
-      const response = await fetch("http://192.168.1.38:3001/api/product/list");
-      const data = await response.json();
-      if (response.ok) {
-        const verifiedData = data.map((product, index) => ({
-          ...product,
-          id: product.id ? product.id.toString() : index.toString(),
-        }));
-        setProducts(verifiedData);
-      } else {
-        console.error(data.message);
+      const response = await fetch("http://172.16.103.80:3001/api/product/list");
+      if (!response.ok) {
+        throw new Error("Error al obtener la lista de productos");
       }
+      const data = await response.json();
+      const verifiedData = data.map((product: any, index: number) => ({
+        ...product,
+        id: product.id ? product.id.toString() : index.toString(),
+      }));
+      setProducts(verifiedData);
     } catch (error) {
-      console.error("Error al obtener la lista de productos:", error);
+      console.error(error.message);
     }
   };
-  // Handle adding a new product
+
   const handleAddProduct = async () => {
     if (
       newProductName &&
       newProductPrice &&
       newProductDescription &&
-      newProductType &&
-      newProductImagenURL
+      newProductType
     ) {
       try {
         const response = await fetch(
-          "http://192.168.1.38:3001/api/product/create",
+          "http://172.16.103.80:3001/api/product/create",
           {
             method: "POST",
             headers: {
@@ -62,30 +62,29 @@ const BakeryHomeScreen = () => {
               precio: parseFloat(newProductPrice),
               tipo: newProductType,
               idUsuario: "1",
-              imagenURL: newProductImagenURL,
             }),
           }
         );
 
-        const data = await response.json();
-        if (response.ok) {
-          console.log(data.message);
-          fetchProducts();
-          setNewProductName("");
-          setNewProductPrice("");
-          setNewProductDescription("");
-          setNewProductType("");
-          setNewProductImagenURL("");
-        } else {
-          console.error(data.message);
+        if (!response.ok) {
+          throw new Error("Error al agregar producto");
         }
+
+        const data = await response.json();
+        console.log(data.message);
+        fetchProducts();
+        setNewProductName("");
+        setNewProductPrice("");
+        setNewProductDescription("");
+        setNewProductType("");
+        setImage(null);
       } catch (error) {
-        console.error("Error al agregar producto:", error);
+        console.error(error.message);
       }
     }
   };
-  // Handle removing a product
-  const handleRemoveProduct = async (productId) => {
+
+  const handleRemoveProduct = async (productId: string) => {
     try {
       const response = await fetch(
         `http://192.168.1.38:3001/api/product/delete/${productId}`,
@@ -94,18 +93,30 @@ const BakeryHomeScreen = () => {
         }
       );
 
-      const data = await response.json();
-      if (response.ok) {
-        const updatedProducts = products.filter(
-          (product) => product.id !== productId
-        );
-        setProducts(updatedProducts);
-        console.log(data.message);
-      } else {
-        console.error(data.message);
+      if (!response.ok) {
+        throw new Error("Error al eliminar el producto");
       }
+
+      const updatedProducts = products.filter(
+        (product) => product.id !== productId
+      );
+      setProducts(updatedProducts);
+      console.log("Producto eliminado correctamente");
     } catch (error) {
-      console.error("Error al eliminar el producto:", error);
+      console.error(error.message);
+    }
+  };
+
+  const pickImage = async () => {
+    let result = (await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    })) as ImagePicker.ImagePickerResult;
+
+    if (!result.cancelled) {
+      setImage(result.uri);
     }
   };
 
@@ -132,6 +143,7 @@ const BakeryHomeScreen = () => {
           keyExtractor={(item) => item.id.toString()}
         />
         <Text style={styles.text1}>AÑADIR PRODUCTO</Text>
+        
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.input}
@@ -162,13 +174,17 @@ const BakeryHomeScreen = () => {
             value={newProductType}
             placeholderTextColor="black"
           />
-          <TextInput
-            style={styles.input}
-            placeholder="URL de la imagen del nuevo producto"
-            onChangeText={setNewProductImagenURL}
-            value={newProductImagenURL}
-            placeholderTextColor="black"
-          />
+          <TouchableOpacity onPress={pickImage}>
+            <View style={styles.imagePicker}>
+              {image && (
+                <Image
+                  source={{ uri: image }}
+                  style={{ width: 200, height: 200 }}
+                />
+              )}
+              <Text style={styles.imagePickerText}>Seleccionar imagen</Text>
+            </View>
+          </TouchableOpacity>
         </View>
         <TouchableOpacity style={styles.button} onPress={handleAddProduct}>
           <Text style={[styles.buttonText, { color: "white" }]}>
@@ -242,6 +258,14 @@ const styles = StyleSheet.create({
     flex: 1,
     resizeMode: "cover",
     opacity: 0.96,
+  },
+  imagePicker: {
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  imagePickerText: {
+    marginTop: 10,
+    color: "black",
   },
   fondito: {
     opacity: 0.8,
