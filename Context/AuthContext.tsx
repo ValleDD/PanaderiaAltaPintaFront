@@ -11,7 +11,7 @@ import axios from "axios";
 // Define el tipo de contexto para la autenticación
 interface AuthContextType {
   auth: string | null; // Token de autenticación
-  login: (correo_electronico: string, contrasena: string) => Promise<void>; // Función para iniciar sesión
+  login: (correo_electronico: string, contraseña: string) => Promise<void>; // Función para iniciar sesión
   logout: () => Promise<void>; // Función para cerrar sesión
 }
 
@@ -35,11 +35,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   // Función para iniciar sesión
-  const login = async (correo_electronico: string, contrasena: string) => {
+  const login = async (correo_electronico: string, contraseña: string) => {
     try {
       const response = await axios.post(
         "http://192.168.1.38:3001/api/user/login",
-        { correo_electronico, contrasena }
+        { correo_electronico, contraseña }
       );
 
       if (response.status === 200) {

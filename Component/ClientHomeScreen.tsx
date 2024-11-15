@@ -10,44 +10,66 @@ import {
   ImageBackground,
 } from "react-native";
 import axios from "axios";
+
 const defaultProductImage = require("../assets/producto1.jpg");
 
 const ClientHomeScreen = ({ navigation }) => {
   const [sweets, setSweets] = useState([]);
   const [salty, setSalty] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("Dulce"); // Establece "Dulce" como categoría por defecto
+  const [selectedCategory, setSelectedCategory] = useState("dulce"); // Categoría por defecto
   const [quantity, setQuantity] = useState(0);
   const [productNotes, setProductNotes] = useState({});
-  const [cartItemCount, setCartItemCount] = useState(0);
+  const [cartItems, setCartItems] = useState([]); // Cambiado para manejar los productos en el carrito
 
+  // Fetch products when the selected category changes
   useEffect(() => {
     fetchProductsByCategory(selectedCategory);
   }, [selectedCategory]);
 
   const fetchProductsByCategory = async (category) => {
     try {
-      if (!category) {
-        console.error("Category is empty!");
-      }
       const response = await axios.get(
         `http://192.168.1.38:3001/api/product/${category}`
       );
       const data = response.data;
-      if (category === "Dulce") {
-        setSweets(data);
-      } else if (category === "Salado") {
-        setSalty(data);
+
+      // Check if data is valid and set state accordingly
+      if (Array.isArray(data)) {
+        if (category === "dulce") {
+          setSweets(data);
+        } else if (category === "salado") {
+          setSalty(data);
+        }
+      } else {
+        console.error(`Unexpected data format for "${category}":`, data);
       }
     } catch (error) {
       console.error(`Error fetching "${category}" products:`, error);
     }
   };
 
-  const handleAddToCart = async (product) => {
-    // Add your logic to add product to cart
-    setCartItemCount(cartItemCount + quantity); // Incrementa el recuento total de productos en el carrito
-    setQuantity(0); // Reinicia la cantidad a 0 después de agregar al carrito
+  const handleAddToCart = (product) => {
+    if (quantity > 0) {
+      // Crear una copia del carrito
+      const newCartItems = [...cartItems];
+      const existingItemIndex = newCartItems.findIndex(item => item.idProducto === product.idProducto);
+
+      if (existingItemIndex !== -1) {
+        // Si el producto ya existe en el carrito, incrementar la cantidad
+        newCartItems[existingItemIndex].cantidad += quantity;
+      } else {
+        // Si no existe, agregar el producto al carrito
+        newCartItems.push({
+          ...product,
+          cantidad: quantity,
+          nota: productNotes[product.idProducto] || "", // Añadir nota si existe
+        });
+      }
+
+      setCartItems(newCartItems); // Actualizar el carrito
+      setQuantity(0); // Reiniciar la cantidad después de agregar al carrito
+    }
   };
 
   const handleIncrementQuantity = () => {
@@ -61,23 +83,23 @@ const ClientHomeScreen = ({ navigation }) => {
   };
 
   const handleNoteChange = (productId, note) => {
-    setProductNotes({ ...productNotes, [productId]: note });
+    setProductNotes((prevNotes) => ({ ...prevNotes, [productId]: note }));
   };
 
   const renderProductItem = ({ item }) => (
     <View style={styles.productContainer}>
       <Image
-        source={item.imagenURL ? { uri: item.imagenURL } : defaultProductImage}
+        source={item.imagenUrl ? { uri: item.imagenUrl } : defaultProductImage}
         style={styles.productImage}
       />
       <View style={styles.productTextContainer}>
-        <Text style={styles.productName}>{item.Nombre}</Text>
+        <Text style={styles.productName}>{item.nombre}</Text>
         <Text style={styles.productPrice}>{item.precio}€</Text>
         <TextInput
           style={styles.noteInput}
           placeholder="Nota producto..."
-          onChangeText={(note) => handleNoteChange(item.id, note)}
-          value={productNotes[item.id] || ""}
+          onChangeText={(note) => handleNoteChange(item.idProducto, note)}
+          value={productNotes[item.idProducto] || ""}
         />
       </View>
       <View style={styles.actionsContainer}>
@@ -105,8 +127,9 @@ const ClientHomeScreen = ({ navigation }) => {
   );
 
   const handleViewCartPress = () => {
-    navigation.navigate("Your Cart");
-    setCartItemCount(0); // Restablecer el contador del carrito a cero
+    navigation.navigate("Your Cart", {
+      cartItems: cartItems, // Enviar productos del carrito
+    });
   };
 
   return (
@@ -125,21 +148,21 @@ const ClientHomeScreen = ({ navigation }) => {
         </View>
 
         <View style={styles.productOption}>
-          <TouchableOpacity onPress={() => setSelectedCategory("Dulce")}>
+          <TouchableOpacity onPress={() => setSelectedCategory("dulce")}>
             <Text
               style={[
                 styles.category,
-                selectedCategory === "Dulce" && styles.selectedCategory,
+                selectedCategory === "dulce" && styles.selectedCategory,
               ]}
             >
               Dulce
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => setSelectedCategory("Salado")}>
+          <TouchableOpacity onPress={() => setSelectedCategory("salado")}>
             <Text
               style={[
                 styles.category,
-                selectedCategory === "Salado" && styles.selectedCategory,
+                selectedCategory === "salado" && styles.selectedCategory,
               ]}
             >
               Salado
@@ -149,10 +172,10 @@ const ClientHomeScreen = ({ navigation }) => {
 
         <FlatList
           style={styles.flatlist}
-          data={selectedCategory === "Dulce" ? sweets : salty}
+          data={selectedCategory === "dulce" ? sweets : salty}
           renderItem={renderProductItem}
           keyExtractor={(item, index) =>
-            item.id ? item.id.toString() : index.toString()
+            item.idProducto ? item.idProducto.toString() : index.toString()
           }
           contentContainerStyle={styles.productList}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
@@ -163,8 +186,7 @@ const ClientHomeScreen = ({ navigation }) => {
           onPress={handleViewCartPress}
         >
           <Text style={styles.viewCartButtonText}>
-            Carrito ({cartItemCount}){" "}
-            {/* Mostrar la cantidad de productos en el carrito */}
+            Carrito ({cartItems.reduce((total, item) => total + item.cantidad, 0)}) {/* Mostrar la cantidad total en el carrito */}
           </Text>
         </TouchableOpacity>
       </View>
@@ -200,7 +222,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 10,
   },
-
   noteInput: {
     height: 40,
     borderWidth: 1,
@@ -228,7 +249,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     fontSize: 16,
   },
-
   backgroundImage: {
     width: "100%",
     height: "100%",
@@ -273,16 +293,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#eee",
     marginVertical: 5,
   },
-  // Estilos actualizados para el producto
   productContainer: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
-    backgroundColor: "#fff", // Nuevo fondo blanco
-    borderRadius: 10, // Bordes redondeados
-    shadowColor: "#000", // Sombra
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -295,29 +314,25 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     resizeMode: "cover",
-    borderRadius: 10, // Bordes redondeados
-    marginRight: 10, // Margen a la derecha para separar la imagen del texto
+    borderRadius: 10,
+    marginRight: 10,
   },
   productName: {
-    fontSize: 18, // Tamaño del texto aumentado
+    fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 2,
-    color: "black",
   },
   productPrice: {
-    fontSize: 16, // Tamaño del texto aumentado
-    color: "#888", // Color de texto más suave
+    fontSize: 16,
+    color: "green",
   },
-  // Estilos actualizados para el botón de añadir al carrito
   addButton: {
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    backgroundColor: "#007bff",
-    borderRadius: 20, // Bordes más redondeados
+    backgroundColor: "#fa560b",
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 5,
   },
   addButtonLabel: {
-    color: "#fff",
-    fontSize: 16,
+    color: "white",
     fontWeight: "bold",
   },
 });

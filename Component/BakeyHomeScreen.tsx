@@ -26,7 +26,7 @@ const BakeryHomeScreen: React.FC = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch("http://192.168.1.38:3001/api/product/list");
+      const response = await fetch("http://172.16.103.80:3001/api/product/list");
       if (!response.ok) {
         throw new Error("Error al obtener la lista de productos");
       }
@@ -50,7 +50,7 @@ const BakeryHomeScreen: React.FC = () => {
     ) {
       try {
         const response = await fetch(
-          "http://192.168.1.38:3001/api/product/create",
+          "http://172.16.103.80:3001/api/product/create",
           {
             method: "POST",
             headers: {

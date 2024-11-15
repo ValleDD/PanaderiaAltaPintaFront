@@ -38,7 +38,6 @@ const LoginScreen: React.FC<{ route: LoginScreenRouteProp }> = ({ route }) => {
   const [nombre, setNombre] = useState<string>("");
   const [bakeryDetails, setBakeryDetails] = useState<string>("");
   const [direccion, setDireccion] = useState<string>("");
-  const [rol, setRol] = useState<boolean>(false);
   const [selectedIndex, setSelectedIndex] = useState<number>(1);
   const navigation = useNavigation<NavigationProp<any>>(); // Use the navigation hook
   const [isRegister, setIsRegister] = useState<boolean>(false);
@@ -76,7 +75,7 @@ const LoginScreen: React.FC<{ route: LoginScreenRouteProp }> = ({ route }) => {
       };
       // Make a POST request to create a new user
       const response = await axios.post(
-        "http://192.168.1.38:3001/api/user/create",
+        "http:// 192.168.1.38:3001/api/user/create",
         userData
       );
       if (response.status === 201) {

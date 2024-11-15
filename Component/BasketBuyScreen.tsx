@@ -1,51 +1,63 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
 
-const sampleCart = [
-  { id: 1, Nombre: 'Product 1', cantidad: 2, precio: 10 },
-  { id: 2, Nombre: 'Product 2', cantidad: 1, precio: 15 },
-  { id: 3, Nombre: 'Product 3', cantidad: 3, precio: 20 },
-];
+const BasketBuyScreen = ({ route, navigation }) => {
+  const { cartItems = [] } = route.params || {}; // Asegúrate de que se pasa correctamente
 
-const BasketBuyScreen = ({ navigation }) => {
+  const [currentCartItems, setCurrentCartItems] = useState(cartItems);
+
   const renderCartItem = ({ item }) => (
     <View style={styles.shadowContainer}>
       <View style={styles.cartItem}>
-        <Text style={styles.productName}>{item.Nombre}</Text>
-        <Text style={styles.productQuantity}>Cantidad: {item.cantidad}</Text>
-        <Text style={styles.productPrice}>Precio: €{item.precio}</Text>
+        <Text style={styles.productName}>{item.nombre || 'Producto Sin Nombre'}</Text>
+        <Text style={styles.productQuantity}>
+          Cantidad: {item.cantidad || 1} {/* Valor por defecto */}
+        </Text>
+        <Text style={styles.productPrice}>
+          Precio: €{item.precio || 0} {/* Valor por defecto */}
+        </Text>
       </View>
     </View>
   );
 
-  // Calculate total quantity and total price
-  const totalQuantity = sampleCart.reduce((total, item) => total + item.cantidad, 0);
-  const totalPrice = sampleCart.reduce((total, item) => total + (item.cantidad * item.precio), 0);
+  const totalQuantity = currentCartItems.reduce((total, item) => total + (item.cantidad || 1), 0);
+  const totalPrice = currentCartItems.reduce((total, item) => total + ((item.cantidad || 1) * item.precio), 0);
+
+  const handlePayment = () => {
+    try {
+      // Aquí puedes agregar la lógica de pago si la tienes
+      setCurrentCartItems([]); // Vaciar el carrito
+      navigation.navigate('ClientHomeScreen'); // Navegar a la pantalla principal o donde desees
+    } catch (error) {
+      console.error("Error al procesar el pago: ", error);
+      alert("Ocurrió un error al procesar el pago.");
+    }
+  };
 
   return (
     <ImageBackground
       source={require("../assets/fondo2.jpg")}
       style={styles.backgroundImage}
     >
-    <View style={styles.container}>
-      <Text style={styles.title}>Tu Talega</Text>
-      <FlatList
-        data={sampleCart}
-        renderItem={renderCartItem}
-        keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={styles.cartList}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-      />
-      <View style={styles.totalContainer}>
-        <Text style={styles.totalText}>Cantidad Total: {totalQuantity}</Text>
-        <Text style={styles.totalText}>Precio Total: €{totalPrice}</Text>
+      <View style={styles.container}>
+        <Text style={styles.title}>Tu Talega</Text>
+        <FlatList
+          data={currentCartItems} // Mostrar los productos del carrito
+          renderItem={renderCartItem}
+          keyExtractor={(item) => item.idProducto?.toString() || item.id?.toString() || item.nombre || Math.random().toString()} // Proporciona un identificador único si no hay id
+          contentContainerStyle={styles.cartList}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+        />
+        <View style={styles.totalContainer}>
+          <Text style={styles.totalText}>Cantidad Total: {totalQuantity}</Text>
+          <Text style={styles.totalText}>Precio Total: €{totalPrice}</Text>
+        </View>
+        <TouchableOpacity 
+          style={styles.payButton} 
+          onPress={handlePayment}>
+          <Text style={styles.payButtonText}>Pagar Ahora</Text>
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity 
-        style={styles.payButton} 
-        onPress={() => navigation.navigate('Payment')}>
-        <Text style={styles.payButtonText}>Pagar Ahora</Text>
-      </TouchableOpacity>
-    </View>
     </ImageBackground>
   );
 };
